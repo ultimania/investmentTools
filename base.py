@@ -57,4 +57,49 @@ import pdb;pdb.set_trace()
 # Exec SQL Script
 cur.execute(sql_string)
 for row in cur:
-    pprint(row)
+
+    '''
+    Set parameters necessary for scraping process.
+    
+    'url' is a URL string for accessing the scrape destination page. 
+    Because it is a different URL for each issue, 
+    it is acquired from the record set.
+    
+    'html' is the HTML object obtained by the urllib.request module.
+    
+    'soup' is an object that uses BeautifulSoup 
+    to format the contents of the HTML object.
+    
+    'tag' is an html tag enclosing the value to be retrieved.
+    
+    'class' is the name of the class attached 
+    to the tag surrounding the acquisition target.
+    '''
+    url = row[9] # T_BLAND_MS.ACCESS_URL_STRING
+    html = urllib.request.urlopen(url)
+    soup = BeautifulSoup(html, "html.parser")
+    tag = "dd"
+    class = "m-stockPriceElm_value"
+    
+    div = soup.find_all("dd")
+    for tag in div:
+        try:
+            # find class for "m-stockPriceElm_value now"
+            if class_str in 'm-stockPriceElm_value':
+                tag.span.extract() # remove span tag
+                print(tag.string)
+        
+                # TableInsert
+                datetimestr = dt.now().strftime('%Y%m%d')
+                cursor.execute(
+                    "insert into " + db_table + " values (%(id)s, %(value)s, %(date)s)",
+                    {
+                        'id': 1,
+                        'value': tag.string, 
+                        'date': datetimestr
+                    }
+                )
+        
+                break
+    
+    

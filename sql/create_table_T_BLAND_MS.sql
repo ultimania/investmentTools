@@ -11,5 +11,5 @@ CREATE TABLE db_investment.T_BLAND_MS (
     PRIMARY KEY(BLAND_CD),
     FOREIGN KEY(INDUSTRY_CD)         REFERENCES T_INDUSTRY_MS(INDUSTRY_CD),     -- 業種マスタ.業種コード
     FOREIGN KEY(SUB_INDUSTRY_CD)     REFERENCES T_INDUSTRY_MS(INDUSTRY_CD),     -- 業種マスタ.業種コード
-    FOREIGN KEY(SCALE_CD)            REFERENCES T_SCALE_MS(SCALE_CD),           -- 規模マスタ.規模コード
+    FOREIGN KEY(SCALE_CD)            REFERENCES T_SCALE_MS(SCALE_CD)            -- 規模マスタ.規模コード
 ) ENGINE=INNODB;

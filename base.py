@@ -5,6 +5,7 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer,encoding='utf-8')
 import urllib.request, urllib.error
 from bs4 import BeautifulSoup
 import MySQLdb
+from pprint import pprint
 
 
 '''
@@ -23,8 +24,8 @@ please add file path information to this section.
 '''
 
 # Database
-db_host = "172.30.20.2"
-db_port = "3306"
+db_host = "172.30.20.1"
+db_port = 30002
 db_user = "kabuAdmin"
 db_pass = "admin"
 db_database = "db_investment"
@@ -38,6 +39,7 @@ Main Process
 # Create Database Connection Object
 conn = MySQLdb.connect(
     host = db_host,
+    port = db_port,
     user = db_user,
     password = db_pass,
     database = db_database,
@@ -46,11 +48,13 @@ conn = MySQLdb.connect(
 cur = conn.cursor()
 
 # Read SQL Script
-sql_string = read(path_select_bland_ms)
+file = open(path_select_bland_ms)
+sql_string = file.read()
+file.close()
+
+import pdb;pdb.set_trace()
 
 # Exec SQL Script
 cur.execute(sql_string)
 for row in cur:
-    url = row.fetchone()
-    print(url)
-
+    pprint(row)

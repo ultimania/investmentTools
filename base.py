@@ -6,6 +6,7 @@ import urllib.request, urllib.error
 from bs4 import BeautifulSoup
 import MySQLdb
 from pprint import pprint
+from datetime import datetime as dt
 
 
 '''
@@ -29,6 +30,7 @@ db_port = 30002
 db_user = "kabuAdmin"
 db_pass = "admin"
 db_database = "db_investment"
+db_insert_table = "T_STK_PRC_TR"
 
 # Scripts
 path_select_bland_ms = '/git/ultimania/investmentTools/sql/getBlandInfo_selectBlandMs.sql'
@@ -52,8 +54,6 @@ file = open(path_select_bland_ms)
 sql_string = file.read()
 file.close()
 
-import pdb;pdb.set_trace()
-
 # Exec SQL Script
 cur.execute(sql_string)
 for row in cur:
@@ -72,34 +72,44 @@ for row in cur:
     
     'tag' is an html tag enclosing the value to be retrieved.
     
-    'class' is the name of the class attached 
+    'class_string' is the name of the class attached 
     to the tag surrounding the acquisition target.
     '''
     url = row[9] # T_BLAND_MS.ACCESS_URL_STRING
     html = urllib.request.urlopen(url)
     soup = BeautifulSoup(html, "html.parser")
     tag = "dd"
-    class = "m-stockPriceElm_value"
+    class_string = "m-stockPriceElm_value"
     
-    div = soup.find_all("dd")
-    for tag in div:
-        try:
-            # find class for "m-stockPriceElm_value now"
-            if class_str in 'm-stockPriceElm_value':
-                tag.span.extract() # remove span tag
-                print(tag.string)
-        
-                # TableInsert
-                datetimestr = dt.now().strftime('%Y%m%d')
-                cursor.execute(
-                    "insert into " + db_table + " values (%(id)s, %(value)s, %(date)s)",
-                    {
-                        'id': 1,
-                        'value': tag.string, 
-                        'date': datetimestr
-                    }
-                )
-        
-                break
-    
-    
+    tags = soup.find_all(tag)
+    for tag in tags:
+        # find class string
+        if tag.get("class").pop(0) in class_string:
+            tag.span.extract() # remove span tag
+            if tag.string is not None:
+                try:
+                    # delete comma
+                    current_price = tag.string
+                    current_price = current_price.replace(",", "")
+
+                    # TableInsert
+                    datetimestr = dt.now().strftime('%Y%m%d%H%M%S')
+                    cur.execute(
+                        "insert into " + db_insert_table + " values (%(BLAND_CD)s, %(MARKET_PROD_CLS)s, %(CURRENT_PRICE)s,%(DAY_BEFORE_RATIO)s,%(OPENING_PRICE)s,%(LOW_PRICE)s,%(SALES_VOLUME)s,%(CREATE_TIMESTAMP)s)",
+                        {
+                            'BLAND_CD': row[0], # T_BLAND_MS.BLAND_CD
+                            'MARKET_PROD_CLS': row[1], # T_BLAND_MS.MARKET_PROD_CLS
+                            'CURRENT_PRICE': int(current_price),
+                            'DAY_BEFORE_RATIO': 1, 
+                            'OPENING_PRICE': 1,
+                            'HIGH_PRICE': 1, 
+                            'LOW_PRICE': 1,
+                            'SALES_VOLUME': 1, 
+                            'CREATE_TIMESTAMP': datetimestr
+                        }
+                    )
+        except:
+            pass
+
+conn.commit()
+conn.close()

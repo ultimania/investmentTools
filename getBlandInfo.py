@@ -154,10 +154,6 @@ for row in cur:
         )
 
 
-    '''
-    In this script, exceptions caught are output as stack trace.
-    '''
-    
     except Exception as error:
         import traceback
         traceback.print_exc()

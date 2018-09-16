@@ -3,5 +3,5 @@ from rest_framework import routers
 from .views import InvestmentViewSet
 
 router = routers.DefaultRouter()
-router.register(r'diaries', InvestmentViewSet)
+router.register(r'investments', InvestmentViewSet)
 

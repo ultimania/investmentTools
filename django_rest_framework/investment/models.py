@@ -6,10 +6,15 @@ from django.db import models
 from datetime import date
 
 class Investment(models.Model):
-    date = models.DateField(default=date.today, primary_key=True)
-    title = models.CharField(max_length=128)
-    body = models.TextField()
+    bland_cd = models.CharField(primary_key=True)
+    market_prod_cls = models.CharField(max_length=2048)
+    current_price = models.CharField(max_length=11)
+    day_before_ratio = models.CharField(max_length=2048)
+    opening_price = models.CharField(max_length=11)
+    high_price = models.CharField(max_length=11)
+    low_price = models.CharField(max_length=11)
+    sales_volume = models.CharField(max_length=11)
+    create_timestamp = models.DateTimeField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     publishing = models.BooleanField(default=True)
-

@@ -1,12 +1,12 @@
 # coding: UTF-8
-import io,sys
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer,encoding='utf-8')
 
-import urllib.request, urllib.error
 from bs4 import BeautifulSoup
-import MySQLdb
 from pprint import pprint
 from datetime import datetime as dt
+import io,sys
+import urllib.request, urllib.error
+import MySQLdb
 
 
 '''
@@ -35,6 +35,9 @@ db_insert_table = "T_STK_PRC_TR"
 # Scripts
 path_select_bland_ms = '/git/ultimania/investmentTools/sql/getBlandInfo_selectBlandMs.sql'
 
+# parameter
+datetimestr = dt.now().strftime('%Y%m%d%H%M%S')
+
 '''
 Main Process
 '''
@@ -49,6 +52,14 @@ conn = MySQLdb.connect(
 )
 cur = conn.cursor()
 
+'''
+We will acquire the stock information from T_BLAND_MS.
+Only the one whose acquisition flag is valid 
+is taken as the stock information to be acquired.
+
+For each stock acquired, 
+we perform scraping and get the latest necessary information.
+'''
 # Read SQL Script
 file = open(path_select_bland_ms)
 sql_string = file.read()
@@ -78,38 +89,79 @@ for row in cur:
     url = row[9] # T_BLAND_MS.ACCESS_URL_STRING
     html = urllib.request.urlopen(url)
     soup = BeautifulSoup(html, "html.parser")
-    tag = "dd"
-    class_string = "m-stockPriceElm_value"
-    
-    tags = soup.find_all(tag)
-    for tag in tags:
-        # find class string
-        if tag.get("class").pop(0) in class_string:
-            tag.span.extract() # remove span tag
-            if tag.string is not None:
-                try:
-                    # delete comma
-                    current_price = tag.string
-                    current_price = current_price.replace(",", "")
 
-                    # TableInsert
-                    datetimestr = dt.now().strftime('%Y%m%d%H%M%S')
-                    cur.execute(
-                        "insert into " + db_insert_table + " values (%(BLAND_CD)s, %(MARKET_PROD_CLS)s, %(CURRENT_PRICE)s,%(DAY_BEFORE_RATIO)s,%(OPENING_PRICE)s,%(LOW_PRICE)s,%(SALES_VOLUME)s,%(CREATE_TIMESTAMP)s)",
-                        {
-                            'BLAND_CD': row[0], # T_BLAND_MS.BLAND_CD
-                            'MARKET_PROD_CLS': row[1], # T_BLAND_MS.MARKET_PROD_CLS
-                            'CURRENT_PRICE': int(current_price),
-                            'DAY_BEFORE_RATIO': 1, 
-                            'OPENING_PRICE': 1,
-                            'HIGH_PRICE': 1, 
-                            'LOW_PRICE': 1,
-                            'SALES_VOLUME': 1, 
-                            'CREATE_TIMESTAMP': datetimestr
-                        }
-                    )
-        except:
-            pass
+
+    '''
+    Get target parameter information from T_TRG_PRM_MS for new cursor.
+    We perform scraping based on retrieval tag 
+    and class string acquired for each parameter.
+    '''
+
+    # Exec SQL Script
+    cur2 = conn.cursor()
+    sql_string = "SELECT * FROM T_TRG_PRM_MS"
+    cur2.execute(sql_string)
+    
+    # Dictionary Object
+    params = {}
+
+    '''
+    Analyze scraping data based on acquired target parameter information.
+    '''
+    for row_param in cur2:
+    
+        # T_TRG_PRM_MS.TRG_PRM_NAME
+        param_name = row_param[0]
+        # T_TRG_PRM_MS.FIND_TAG
+        trg_tag = row_param[2]
+        # T_TRG_PRM_MS.CLASS_STRING
+        class_string = row_param[3]
+        # T_TRG_PRM_MS.EXCLUDE_TAGS
+        exclude_tags = row_param[4].split(" ")
+
+        # find target tag
+        tag = soup.find(trg_tag,class_=class_string)
+
+        # exclude tags
+        for exclude_tag in exclude_tags:
+            if tag.find(exclude_tag) is not None:
+                tag.span.extract() # remove span tag
+        if tag.string is not None:
+            # delete comma
+            params[param_name] = tag.string.replace(",", "")
+            # pop class string for next search
+            tag.get("class").pop(0)
+    
+
+    '''
+    After extracting the target values ​​for the number of rows (the number of target parameters),
+    insert them into the transaction table of T_STK_PRC_TR.
+    '''
+    try:
+        cur.execute(
+            "insert into " + db_insert_table + " values (%(BLAND_CD)s, %(MARKET_PROD_CLS)s, %(CURRENT_PRICE)s,%(DAY_BEFORE_RATIO)s,%(OPENING_PRICE)s,%(HIGH_PRICE)s,%(LOW_PRICE)s,%(SALES_VOLUME)s,%(CREATE_TIMESTAMP)s)",
+            {
+                'BLAND_CD'          : row[0],           # T_BLAND_MS.BLAND_CD
+                'MARKET_PROD_CLS'   : row[1],           # T_BLAND_MS.MARKET_PROD_CLS
+                'CURRENT_PRICE'     : int(params[1]), 
+                'DAY_BEFORE_RATIO'  : params[2], 
+                'OPENING_PRICE'     : params[3],
+                'HIGH_PRICE'        : params[4], 
+                'LOW_PRICE'         : params[5],
+                'SALES_VOLUME'      : params[6], 
+                'CREATE_TIMESTAMP'  : datetimestr
+            }
+        )
+
+
+    '''
+    In this script, exceptions caught are output as stack trace.
+    '''
+    
+    except Exception as error:
+        import traceback
+        traceback.print_exc()
+        print(error)
 
 conn.commit()
 conn.close()

@@ -1,12 +1,12 @@
 # coding: UTF-8
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer,encoding='utf-8')
-
 from bs4 import BeautifulSoup
 from pprint import pprint
 from datetime import datetime as dt
 import io,sys
 import urllib.request, urllib.error
 import MySQLdb
+
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer,encoding='utf-8')
 
 
 '''

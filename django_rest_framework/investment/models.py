@@ -6,7 +6,11 @@ from django.db import models
 from datetime import date
 
 class Investment(models.Model):
-    bland_cd = models.CharField(primary_key=True, max_length=11)
+    date = models.DateField(default=date.today, primary_key=True)
+    title = models.CharField(max_length=128)
+    body = models.TextField()
+    
+    bland_cd = models.CharField(max_length=11)
     market_prod_cls = models.CharField(max_length=2048)
     current_price = models.CharField(max_length=11)
     day_before_ratio = models.CharField(max_length=2048)

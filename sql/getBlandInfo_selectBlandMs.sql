@@ -1,22 +1,22 @@
 SELECT
-    T_BLAND_MS.BLAND_CD,
-    T_BLAND_MS.BLAND_NAME,
-    T_BLAND_MS.MARKET_PROD_CLS,
-    T_BLAND_MS.INDUSTRY_CD,
-    T_INDUSTRY_MS.INDUSTRY_NAME,
-    T_BLAND_MS.SUB_INDUSTRY_CD,
-    T_SUB_INDUSTRY_MS.INDUSTRY_NAME,
-    T_BLAND_MS.SCALE_CD,
-    T_SCALE_MS.SCALE_NAME,
-    T_BLAND_MS.ACCESS_URL_STRING
+    investment_t_bland_ms.bland_cd,
+    investment_t_bland_ms.bland_name,
+    investment_t_bland_ms.market_prod_cls,
+    investment_t_bland_ms.industry_cd_id,
+    investment_t_industry_ms.industry_name,
+    investment_t_bland_ms.sub_industry_cd,
+    T_SUB_INDUSTRY_MS.industry_name,
+    investment_t_bland_ms.scale_cd_id,
+    investment_t_scale_ms.scale_name,
+    investment_t_bland_ms.access_url_string
 FROM   
-    T_BLAND_MS
-LEFT OUTER JOIN T_INDUSTRY_MS
-    ON T_INDUSTRY_MS.INDUSTRY_CD = T_BLAND_MS.INDUSTRY_CD
-LEFT OUTER JOIN T_INDUSTRY_MS AS T_SUB_INDUSTRY_MS
-    ON T_SUB_INDUSTRY_MS.INDUSTRY_CD = T_BLAND_MS.SUB_INDUSTRY_CD
-LEFT OUTER JOIN T_SCALE_MS
-    ON T_SCALE_MS.SCALE_CD = T_BLAND_MS.SCALE_CD
+    investment_t_bland_ms
+LEFT OUTER JOIN investment_t_industry_ms
+    ON investment_t_industry_ms.industry_cd = investment_t_bland_ms.industry_cd_id
+LEFT OUTER JOIN investment_t_industry_ms AS T_SUB_INDUSTRY_MS
+    ON T_SUB_INDUSTRY_MS.industry_cd = investment_t_bland_ms.sub_industry_cd
+LEFT OUTER JOIN investment_t_scale_ms
+    ON investment_t_scale_ms.scale_cd = investment_t_bland_ms.scale_cd_id
 WHERE
-    T_BLAND_MS.FETCH_FLG = 0
+    investment_t_bland_ms.fetch_flg = 0
 ;

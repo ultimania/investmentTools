@@ -27,10 +27,10 @@ please add file path information to this section.
 # Database
 db_host = "172.30.20.1"
 db_port = 30002
-db_user = "kabuAdmin"
+db_user = "djangoAdmin"
 db_pass = "admin"
-db_database = "db_investment"
-db_insert_table = "T_STK_PRC_TR"
+db_database = "django"
+db_insert_table = "investment_t_stk_prc_tr"
 
 # Scripts
 path_select_bland_ms = '/git/ultimania/investmentTools/sql/getBlandInfo_selectBlandMs.sql'
@@ -99,7 +99,7 @@ for row in cur:
 
     # Exec SQL Script
     cur2 = conn.cursor()
-    sql_string = "SELECT * FROM T_TRG_PRM_MS"
+    sql_string = "SELECT * FROM investment_t_trg_prm_ms"
     cur2.execute(sql_string)
     
     # Dictionary Object
@@ -139,9 +139,10 @@ for row in cur:
     '''
     try:
         cur.execute(
-            "insert into " + db_insert_table + " values (%(BLAND_CD)s, %(MARKET_PROD_CLS)s, %(CURRENT_PRICE)s,%(DAY_BEFORE_RATIO)s,%(OPENING_PRICE)s,%(HIGH_PRICE)s,%(LOW_PRICE)s,%(SALES_VOLUME)s,%(CREATE_TIMESTAMP)s)",
+            "insert into " + db_insert_table +
+            " (market_prod_cls ,current_price ,day_before_ratio ,opening_price ,high_orice ,low_price ,sales_volume ,created_at ,bland_cd_id ) " + 
+            "values (%(MARKET_PROD_CLS)s, %(CURRENT_PRICE)s,%(DAY_BEFORE_RATIO)s,%(OPENING_PRICE)s,%(HIGH_PRICE)s,%(LOW_PRICE)s,%(SALES_VOLUME)s,%(CREATE_TIMESTAMP)s,%(BLAND_CD)s)",
             {
-                'BLAND_CD'          : row[0],           # T_BLAND_MS.BLAND_CD
                 'MARKET_PROD_CLS'   : row[1],           # T_BLAND_MS.MARKET_PROD_CLS
                 'CURRENT_PRICE'     : int(params[1]), 
                 'DAY_BEFORE_RATIO'  : params[2], 
@@ -149,7 +150,8 @@ for row in cur:
                 'HIGH_PRICE'        : params[4], 
                 'LOW_PRICE'         : params[5],
                 'SALES_VOLUME'      : params[6], 
-                'CREATE_TIMESTAMP'  : datetimestr
+                'CREATE_TIMESTAMP'  : datetimestr,
+                'BLAND_CD'          : row[0]           # T_BLAND_MS.BLAND_CD
             }
         )
 

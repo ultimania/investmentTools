@@ -122,15 +122,16 @@ for row in cur:
         # find target tag
         tag = soup.find(trg_tag,class_=class_string)
 
-        # exclude tags
-        for exclude_tag in exclude_tags:
-            if tag.find(exclude_tag) is not None:
-                tag.span.extract() # remove span tag
-        if tag.string is not None:
-            # delete comma
-            params[param_name] = tag.string.replace(",", "")
-            # pop class string for next search
-            tag.get("class").pop(0)
+        if tag is not None:
+            # exclude tags
+            for exclude_tag in exclude_tags:
+                if ( tag is not None ) and ( tag.find(exclude_tag) is not None ):
+                    tag.span.extract() # remove span tag
+            if tag.string is not None:
+                # delete comma
+                params[param_name] = tag.string.replace(",", "")
+                # pop class string for next search
+                tag.get("class").pop(0)
     
 
     '''
@@ -144,12 +145,12 @@ for row in cur:
             "values (%(MARKET_PROD_CLS)s, %(CURRENT_PRICE)s,%(DAY_BEFORE_RATIO)s,%(OPENING_PRICE)s,%(HIGH_PRICE)s,%(LOW_PRICE)s,%(SALES_VOLUME)s,%(CREATE_TIMESTAMP)s,%(BLAND_CD)s)",
             {
                 'MARKET_PROD_CLS'   : row[1],           # T_BLAND_MS.MARKET_PROD_CLS
-                'CURRENT_PRICE'     : int(params[1]), 
-                'DAY_BEFORE_RATIO'  : params[2], 
-                'OPENING_PRICE'     : params[3],
-                'HIGH_PRICE'        : params[4], 
-                'LOW_PRICE'         : params[5],
-                'SALES_VOLUME'      : params[6], 
+                'CURRENT_PRICE'     : 0 if params[1] in '--' else params[1],
+                'DAY_BEFORE_RATIO'  : params[2],
+                'OPENING_PRICE'     : 0 if params[3] in '--' else params[3],
+                'HIGH_PRICE'        : 0 if params[4] in '--' else params[4],
+                'LOW_PRICE'         : 0 if params[5] in '--' else params[5],
+                'SALES_VOLUME'      : 0 if params[6] in '--' else params[6],
                 'CREATE_TIMESTAMP'  : datetimestr,
                 'BLAND_CD'          : row[0]           # T_BLAND_MS.BLAND_CD
             }
@@ -160,6 +161,7 @@ for row in cur:
         import traceback
         traceback.print_exc()
         print(error)
+        pass
 
 conn.commit()
 conn.close()

@@ -24,7 +24,7 @@ class T_INDUSTRY_MS(models.Model):
 class T_BLAND_MS(models.Model):
     bland_cd            = models.IntegerField(primary_key=True)
     bland_name          = models.CharField(max_length=128)
-    market_prod_cls     = models.CharField(max_length=64)
+    market_prod_cls     = models.CharField(max_length=128)
     industry_cd         = models.ForeignKey(T_INDUSTRY_MS,on_delete=models.CASCADE)
     sub_industry_cd     = models.IntegerField()
     scale_cd            = models.ForeignKey(T_SCALE_MS,on_delete=models.CASCADE)
@@ -34,11 +34,11 @@ class T_BLAND_MS(models.Model):
 
 class T_STK_PRC_TR(models.Model):
     bland_cd            = models.ForeignKey(T_BLAND_MS,on_delete=models.CASCADE)
-    market_prod_cls     = models.CharField(max_length=64)
-    current_price       = models.IntegerField()
+    market_prod_cls     = models.CharField(max_length=128)
+    current_price       = models.FloatField()
     day_before_ratio    = models.CharField(max_length=64)
-    opening_price       = models.IntegerField()
-    high_orice          = models.IntegerField()
-    low_price           = models.IntegerField()
+    opening_price       = models.FloatField()
+    high_orice          = models.FloatField()
+    low_price           = models.FloatField()
     sales_volume        = models.IntegerField()
     created_at          = models.DateTimeField(auto_now_add=True)

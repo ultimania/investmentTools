@@ -121,16 +121,17 @@ for row in cur:
 
         # find target tag
         tag = soup.find(trg_tag,class_=class_string)
-
-        # exclude tags
-        for exclude_tag in exclude_tags:
-            if tag.find(exclude_tag) is not None:
-                tag.span.extract() # remove span tag
-        if tag.string is not None:
-            # delete comma
-            params[param_name] = tag.string.replace(",", "")
-            # pop class string for next search
-            tag.get("class").pop(0)
+        
+        if tag is not None:
+            # exclude tags
+            for exclude_tag in exclude_tags:
+                if tag.find(exclude_tag) is not None:
+                    tag.span.extract() # remove span tag
+            if tag.string is not None:
+                # delete comma
+                params[param_name] = tag.string.replace(",", "")
+                # pop class string for next search
+                tag.get("class").pop(0)
     
 
     '''
@@ -154,10 +155,9 @@ for row in cur:
                 'BLAND_CD'          : row[0]           # T_BLAND_MS.BLAND_CD
             }
         )
-
+        conn.commit()
 
     except:
         pass
 
-conn.commit()
 conn.close()

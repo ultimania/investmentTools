@@ -144,7 +144,7 @@ for row in cur:
             "values (%(MARKET_PROD_CLS)s, %(CURRENT_PRICE)s,%(DAY_BEFORE_RATIO)s,%(OPENING_PRICE)s,%(HIGH_PRICE)s,%(LOW_PRICE)s,%(SALES_VOLUME)s,%(CREATE_TIMESTAMP)s,%(BLAND_CD)s)",
             {
                 'MARKET_PROD_CLS'   : row[1],           # T_BLAND_MS.MARKET_PROD_CLS
-                'CURRENT_PRICE'     : int(params[1]), 
+                'CURRENT_PRICE'     : params[1], 
                 'DAY_BEFORE_RATIO'  : params[2], 
                 'OPENING_PRICE'     : params[3],
                 'HIGH_PRICE'        : params[4], 
@@ -156,10 +156,8 @@ for row in cur:
         )
 
 
-    except Exception as error:
-        import traceback
-        traceback.print_exc()
-        print(error)
+    except:
+        pass
 
 conn.commit()
 conn.close()

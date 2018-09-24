@@ -35,3 +35,11 @@ class StockPriceViewSet(viewsets.ModelViewSet):
     queryset = T_STK_PRC_TR.objects.all()
     serializer_class = StockPriceSerializer
 
+    def get_queryset(self, *args, **kwargs):
+        queryset_list = T_STK_PRC_TR.objects.all()
+
+        query = self.request.GET.get("q")
+        if query:
+            queryset_list = queryset_list.filter(bland_cd=query).distinct()
+        return queryset_list
+

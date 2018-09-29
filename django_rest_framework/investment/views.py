@@ -1,6 +1,5 @@
 from django.shortcuts import render
 
-# Create your views here.
 # coding: utf-8
 from rest_framework import viewsets
 from .models import T_TRG_PRM_MS
@@ -72,4 +71,3 @@ class ExtractionConditionViewSet(viewsets.ModelViewSet):
 class ExtractionConditionChildViewSet(viewsets.ModelViewSet):
     queryset = T_EXT_CND_CH_TR.objects.all()
     serializer_class = ExtractionConditionChildSerializer
-

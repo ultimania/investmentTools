@@ -1,7 +1,7 @@
 # Create your models here.
 # coding: utf-8
 from django.db import models
-from datetime import date
+from django.utils import timezone
 
 class T_TRG_PRM_MS(models.Model):
     trg_prm_cd          = models.IntegerField(primary_key=True)
@@ -34,11 +34,45 @@ class T_BLAND_MS(models.Model):
 
 class T_STK_PRC_TR(models.Model):
     bland_cd            = models.ForeignKey(T_BLAND_MS,on_delete=models.CASCADE)
-    market_prod_cls     = models.CharField(max_length=64)
-    current_price       = models.IntegerField()
+    market_prod_cls     = models.CharField(max_length=256)
+    current_price       = models.FloatField()
     day_before_ratio    = models.CharField(max_length=64)
-    opening_price       = models.IntegerField()
-    high_orice          = models.IntegerField()
-    low_price           = models.IntegerField()
+    opening_price       = models.FloatField()
+    high_orice          = models.FloatField()
+    low_price           = models.FloatField()
     sales_volume        = models.IntegerField()
     created_at          = models.DateTimeField(auto_now_add=True)
+
+class T_STATISTIC_MS(models.Model):
+    statistic_cd        = models.IntegerField(primary_key=True)
+    statistic_name      = models.CharField(max_length=1024)
+    created_at          = models.DateTimeField(auto_now_add=True)
+
+class T_UNIT_MS(models.Model):
+    unit_cd             = models.IntegerField(primary_key=True)
+    unit_name           = models.CharField(max_length=1024)
+    created_at          = models.DateTimeField(auto_now_add=True)
+
+
+class T_CONDITIONS_MS(models.Model):
+    conditions_cd       = models.IntegerField(primary_key=True)
+    conditions_name     = models.CharField(max_length=1024)
+    created_at          = models.DateTimeField(auto_now_add=True)
+
+
+class T_EXT_CND_TR(models.Model):
+    condition_no        = models.IntegerField(primary_key=True)
+    condition_name      = models.CharField(max_length=1024)
+    created_at          = models.DateTimeField(auto_now_add=True)
+
+class T_EXT_CND_CH_TR(models.Model):
+    condition_ch_no     = models.IntegerField(primary_key=True)
+    condition_no        = models.ForeignKey(T_EXT_CND_TR,on_delete=models.CASCADE)
+    condition_type      = models.CharField(max_length=256)
+    target0             = models.ForeignKey(T_TRG_PRM_MS,on_delete=models.CASCADE)
+    target1             = models.ForeignKey(T_STATISTIC_MS,on_delete=models.CASCADE)
+    threshold           = models.IntegerField()
+    conditions          = models.ForeignKey(T_CONDITIONS_MS,on_delete=models.CASCADE)
+    unit                = models.ForeignKey(T_UNIT_MS,on_delete=models.CASCADE)
+    created_at          = models.DateTimeField(auto_now_add=True)
+

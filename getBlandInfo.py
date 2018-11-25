@@ -25,8 +25,8 @@ please add file path information to this section.
 '''
 
 # Database
-db_host = "172.30.20.1"
-db_port = 30002
+db_host = "192.168.0.21"
+db_port = 3306
 db_user = "djangoAdmin"
 db_pass = "admin"
 db_database = "django"

@@ -42,10 +42,18 @@ for etf in etf_list:
 	for d in df["Date"]:
 		#try:
 		date = df_etf.loc[(df_etf.Date == d), "Date"]
+        if len(date) == 0:
+            date = tmp_date
+        else:
+            tmp_date = date
 		yesterday_date = date.values[0]
 		dates.append(date.values[0])
 
 		close = df_etf.loc[(df_etf.Date == d), "Close"]
+        if len(close) == 0:
+            close = tmp_close
+        else:
+            tmp_close = close
 		if str(close.values[0]) != str("nan"):
 			yesterday_close = close.values[0]
 			closeis.append(close.values[0])	

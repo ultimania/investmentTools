@@ -43,8 +43,6 @@ def getIterSoup(base_url: 'base url for scraping',tag_info: 'tag informations as
         Initialized variable
         '''
         result_object = list()  
-        tags_object = list()      
-
         '''
         Exit function when counter reaches page size
         '''
@@ -71,7 +69,8 @@ def getIterSoup(base_url: 'base url for scraping',tag_info: 'tag informations as
             exclude_tags    = row_param[4]
     
             # Get html strings for find tag
-            values = soup.find_all(find_tag, class_=find_class)
+            tags_object = list()
+            values = soup.select(find_class)
             if values is not None and len(values) != 0:
                 for value in values:
                     # Add result object

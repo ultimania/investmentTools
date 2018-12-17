@@ -1,7 +1,7 @@
 import pandas as pd
 
 
-df = pd.read_csv("4307_2018.csv", header=0)
+df = pd.read_csv("9433_2018.csv", header=0)
 df.columns=["Date", "Open", "High", "Low", "Close", "Volume", "Trading Value"]
 df["index"] = [i for i in range(len(df))]
 print(df.head(20))
@@ -42,18 +42,18 @@ for etf in etf_list:
 	for d in df["Date"]:
 		#try:
 		date = df_etf.loc[(df_etf.Date == d), "Date"]
-        if len(date) == 0:
-            date = tmp_date
-        else:
-            tmp_date = date
+	if len(date) == 0:
+		date = tmp_date
+	else:
+		tmp_date = date
 		yesterday_date = date.values[0]
 		dates.append(date.values[0])
 
 		close = df_etf.loc[(df_etf.Date == d), "Close"]
-        if len(close) == 0:
-            close = tmp_close
-        else:
-            tmp_close = close
+	if len(close) == 0:
+		close = tmp_close
+	else:
+		tmp_close = close
 		if str(close.values[0]) != str("nan"):
 			yesterday_close = close.values[0]
 			closeis.append(close.values[0])	
@@ -69,4 +69,4 @@ for etf in etf_list:
 	df["diff_" + str(etf)] = (df["Close_" + str(etf)] / df["Close_" + str(etf)].shift(-1)) - 1
 	#print(df)
 
-df.to_csv("code_4307_plus.csv")
+df.to_csv("code_9433_plus.csv")

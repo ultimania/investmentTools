@@ -27,7 +27,7 @@ SECRET_KEY = '3t2#qy(1ix_o6i77h#am(x1oo%ue&lttm(9z7_j2=tt%06@fu6'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['172.30.20.3','172.30.20.1','192.168.0.22', 'localhost', '127.0.0.1',]
+ALLOWED_HOSTS = ['192.168.0.21','172.30.20.3','172.30.20.1','192.168.0.22', 'localhost', '127.0.0.1',]
 
 
 # Application definition
@@ -89,9 +89,9 @@ DATABASES = {
        # パスワード
        'PASSWORD': 'admin',
        # サーバのIPアドレスやホストを。空欄はローカルホスト
-        'HOST': '172.30.20.1',
+        'HOST': '192.168.0.22',
        # ポート
-       'PORT': '30002',
+       'PORT': '3306',
        'OPTIONS': {
            # 制約を厳しくチェック
            'sql_mode': 'traditional',

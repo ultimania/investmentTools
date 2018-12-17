@@ -10,6 +10,7 @@ from .models import T_EXT_CND_CH_TR
 from .models import T_STATISTIC_MS
 from .models import T_UNIT_MS
 from .models import T_CONDITIONS_MS
+from .models import T_URL_MS
 
 
 class TargetParamSerializer(serializers.ModelSerializer):
@@ -65,6 +66,11 @@ class ExtractionConditionChildSerializer(serializers.ModelSerializer):
     unit    = UnitSerializer
     class Meta:
         model = T_EXT_CND_CH_TR
+        fields = '__all__' 
+
+class UrlSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = T_URL_MS
         fields = '__all__' 
 
 

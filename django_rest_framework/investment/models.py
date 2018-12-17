@@ -76,3 +76,10 @@ class T_EXT_CND_CH_TR(models.Model):
     unit                = models.ForeignKey(T_UNIT_MS,on_delete=models.CASCADE)
     created_at          = models.DateTimeField(auto_now_add=True)
 
+class T_URL_MS(models.Model):
+    url_cd              = models.IntegerField(primary_key=True)
+    url_str             = models.CharField(max_length=128)
+    tag_cd              = models.IntegerField()
+    pages               = models.IntegerField()
+    get_flg             = models.IntegerField()
+

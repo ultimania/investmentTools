@@ -61,7 +61,9 @@ def getIterSoup(base_url: 'base url for scraping',tag_info: 'tag informations as
                 )
 
         # Extract Values from html tags
+        j = 0
         for row_param in tag_info:
+            j += 1
             # Define tags info
             param_id        = row_param[0]
             find_tag        = row_param[2]
@@ -69,15 +71,19 @@ def getIterSoup(base_url: 'base url for scraping',tag_info: 'tag informations as
             exclude_tags    = row_param[4]
     
             # Get html strings for find tag
-            tags_object = list()
+            tags_object,tmp_list = list(),list()
             values = soup.select(find_class)
+            i, pp  = 0, 3 * j
             if values is not None and len(values) != 0:
                 for value in values:
-                    # Add result object
-                    tags_object.append( value.string )
-            result_object.append({str(page_count) + ':' + find_class + ':' + find_tag : tags_object})
+                    tmp_list.insert(i % pp , value.string)
+                    if i % pp == pp - 1:
+                        tags_object.append(tmp_list)
+                        tmp_list = list()
+                    i += 1
+                result_object.append({str(page_count) + ':' + find_class : tags_object})
         
-        '''
+        ''' 
         Return result object
         '''
         yield result_object
@@ -119,6 +125,6 @@ with MySQLdb.connect(host = db_host, port = db_port, user = db_user, password = 
 
     # output JSON file
     with open(path_result_json, mode='w') as f:
-        f.write(json.dumps(value_list))
+        json.dump(value_list, f, ensure_ascii=True, indent=4, sort_keys=True, separators=(',', ': '))
 
 

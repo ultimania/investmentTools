@@ -8,9 +8,9 @@ import MySQLdb
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer,encoding='utf-8')
 
-'''
+'''--------------------------------------------------------------------------
 Environment variables and script variables used in scripts are defined below.
-'''
+--------------------------------------------------------------------------'''
 # Database
 db_host             = "192.168.0.22"
 db_port             = 3306
@@ -24,36 +24,34 @@ script_base         = '/root/myproject/investmentTools'
 path_getUtl         = script_base + '/sql/getUrl.sql'
 path_getTrgPrm      = script_base + '/sql/getTrgPrm.sql'
                     
-# Dictionary        
-params              = {}
-                    
 # parameter      
 datetimestr         = dt.now().strftime('%Y%m%d%H%M%S')
 
 # Output files
 path_result_json    = script_base + '/result/getValue_' + datetimestr + '.json'
 
-'''
+'''--------------------------------------------------------------------------
 my functions
-'''
-def getIterSoup(base_url: 'base url for scraping',tag_info: 'tag informations as record set', page_size: 'page size for web site') -> 'iteration object for scrapeing result':
-    page_count = 0
-    while True:
-        '''
-        Initialized variable
-        '''
-        result_object = list()  
-        '''
-        Exit function when counter reaches page size
-        '''
-        if page_count > page_size:
-            break
+--------------------------------------------------------------------------'''
+def recombineList(list1:'sourceList', list2:'targetList') -> 'recombinedList':
+    if len(list1) != len(list2) : raise ValueError
+    for i in range(0,len(list1)): 
+        list1[i].extend(list2[i])
+    return list1
 
-        '''
-        Scrape the page and create result obuject
-        '''
+def getIterSoup(base_url: 'base url for scraping',tag_info: 'tag informations as record set', page_size: 'page size for web site') -> 'iteration object for scrapeing result':
+    import re
+
+    page_count = 0
+
+    '''--------------------------------------
+    Scrape the page and create result obuject
+    --------------------------------------'''
+    while True:
+        result_object = list()  
+        if page_count > page_size: break
+
         # decide URL strings and create SOUP object(scrape web page)
-        import re
         target_url = re.sub(r'page=[0-9]+', 'page=' + str(page_count), base_url) 
         soup =  BeautifulSoup(
                     urllib.request.urlopen(target_url),
@@ -81,23 +79,24 @@ def getIterSoup(base_url: 'base url for scraping',tag_info: 'tag informations as
                         tags_object.append(tmp_list)
                         tmp_list = list()
                     i += 1
-                result_object.append({str(page_count) + ':' + find_class : tags_object})
-        
-        ''' 
+                result_object.append( tags_object )
+
+        '''--------------------------------------
         Return result object
-        '''
-        yield result_object
+        --------------------------------------'''
+        yield recombineList(result_object[0],result_object[1])
         page_count += 1
 
-'''
+'''--------------------------------------------------------------------------
 Main Process
-'''
+--------------------------------------------------------------------------'''
 # Create Database Connection Object
 with MySQLdb.connect(host = db_host, port = db_port, user = db_user, password = db_pass, database = db_database, charset='utf8') as cur:
+    import json
 
-    '''
+    '''--------------------------------------
     Get URL information and create soup object for scraping
-    '''
+    --------------------------------------'''
     # Read and Execute SQL Script
     with open(path_getUtl) as f:
         cur.execute(f.read())
@@ -106,25 +105,23 @@ with MySQLdb.connect(host = db_host, port = db_port, user = db_user, password = 
         base_url    = row[1]
         pages       = row[3]
 
-    '''
+    '''--------------------------------------
     Get target parameter information.
-    '''
+    --------------------------------------'''
     # Read and Execute SQL Script
     with open(path_getTrgPrm) as f:
         cur.execute(f.read())
 
-    '''
+    '''--------------------------------------
     Get target value and output JSON file
-    '''
-    import json
-
+    --------------------------------------'''
     # Get target value as list
     value_list = list()
     for values in getIterSoup(base_url,cur,pages):
-        value_list.append(values)
+        value_list.extend(values)
 
-    # output JSON file
     with open(path_result_json, mode='w') as f:
         json.dump(value_list, f, ensure_ascii=True, indent=4, sort_keys=True, separators=(',', ': '))
+
 
 

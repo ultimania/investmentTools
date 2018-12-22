@@ -36,7 +36,7 @@ class T_STK_PRC_TR(models.Model):
     bland_cd            = models.ForeignKey(T_BLAND_MS,on_delete=models.CASCADE)
     market_prod_cls     = models.CharField(max_length=256)
     current_price       = models.FloatField()
-    day_before_ratio    = models.CharField(max_length=64)
+    day_before_ratio    = models.FloatField()
     opening_price       = models.FloatField()
     high_orice          = models.FloatField()
     low_price           = models.FloatField()
@@ -82,4 +82,5 @@ class T_URL_MS(models.Model):
     tag_cd              = models.IntegerField()
     pages               = models.IntegerField()
     get_flg             = models.IntegerField()
+
 

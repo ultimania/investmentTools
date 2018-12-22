@@ -3,10 +3,9 @@ from bs4 import BeautifulSoup
 from pprint import pprint
 from datetime import datetime as dt
 import io,sys
+import codecs
 import urllib.request, urllib.error
 import MySQLdb
-
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer,encoding='utf-8')
 
 '''--------------------------------------------------------------------------
 Environment variables and script variables used in scripts are defined below.

@@ -3,10 +3,11 @@ from bs4 import BeautifulSoup
 from pprint import pprint
 from datetime import datetime as dt
 import io,sys
+import codecs
 import urllib.request, urllib.error
 import MySQLdb
 
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer,encoding='utf-8')
+sys.stdout = codecs.getwriter('utf_8')(sys.stdout)
 
 '''--------------------------------------------------------------------------
 Environment variables and script variables used in scripts are defined below.
@@ -122,6 +123,4 @@ with MySQLdb.connect(host = db_host, port = db_port, user = db_user, password = 
 
     with open(path_result_json, mode='w') as f:
         json.dump(value_list, f, ensure_ascii=True, indent=4, sort_keys=True, separators=(',', ': '))
-
-
 

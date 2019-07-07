@@ -3,7 +3,8 @@ import MySQLdb
 import os
 import json
 import datetime
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer,encoding='utf-8')
+import io,sys
+import codecs
 
 '''--------------------------------------------------------------------------
 Environment variables and script variables used in scripts are defined below.
@@ -19,12 +20,9 @@ db_insert_table     = "investment_t_stk_prc_tr"
 # Scripts          
 script_base         = '/root/myproject/investmentTools'
 path_result_folder  = script_base + '/result'
-result_files        = [f for f in os.listdir(path_result_folder) if os.files.isfile(os.path.join(path_result_folder, f))]
+result_files        = [f for f in os.listdir(path_result_folder) if os.path.isfile(os.path.join(path_result_folder, f))]
 path_sql_folder     = script_base + '/sql'
 sql_insert_stockprice = path_sql_folder + '/insertStockPrice.sql'
-
-# Output files
-path_result_json    = script_base + '/result/getValue_' + datetimestr + '.json'
 
 '''--------------------------------------------------------------------------
 my functions
@@ -34,20 +32,20 @@ def normalizeRecord(record: 'data array of data set') -> 'normalized data':
     date format convert : record[3]
       "mm/dd hhmm" -> " yyyy/mm/dd hh:mm:ss "
     --------------------------------------'''
-    t_datetime = datetime.datetime.strptime( record[3], '%m/%d %H%M')
+    t_datetime = datetime.datetime.strptime( record[3], '%m/%d\u3000%H:%M')
     record[3] = t_datetime.strftime('%Y/%m/%d %H:%M:%S')
 
     '''--------------------------------------
     delete comma from integer value : record[4],record[7],record[8]
       "n,nnn" -> "nnnn"
     --------------------------------------'''
-    record[4] = record[4].string.replace(",", "")
-    record[7] = record[7].string.replace(",", "")
-    record[8] = record[8].string.replace(",", "")
+    record[4] = record[4].replace(",", "")
+    record[7] = record[7].replace(",", "")
+    record[8] = record[8].replace(",", "")
 
     return record
 
-def genInsertSql(record: 'normalized data') -> 'sql strings'
+def genInsertSql(record: 'normalized data') -> 'sql strings':
     # Read SQL Script
     with open(sql_insert_stockprice) as f:
         sql_string = f.read()
@@ -76,7 +74,8 @@ for result_file in result_files:
     Read JSON file and convert to list
     --------------------------------------'''
     # Read and Execute SQL Script
-    data_set = json.load(path_result_folder + result_file)
+    with codecs.open(path_result_folder + "/" + result_file, 'r', 'utf-8') as f:
+        data_set = json.load(f)
     '''--------------------------------------
     Normalize data and create insert SQL
     --------------------------------------'''

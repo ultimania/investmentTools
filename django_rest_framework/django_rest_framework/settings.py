@@ -27,7 +27,7 @@ SECRET_KEY = '3t2#qy(1ix_o6i77h#am(x1oo%ue&lttm(9z7_j2=tt%06@fu6'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.0.21','172.30.20.3','172.30.20.1','192.168.0.22', 'localhost', '127.0.0.1',]
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -85,11 +85,11 @@ DATABASES = {
        # データベース名
        'NAME': 'django',
        # ユーザー名
-       'USER': 'djangoAdmin',
+       'USER': 'apiadmin',
        # パスワード
-       'PASSWORD': 'admin',
+       'PASSWORD': 'apiadmin_pwd',
        # サーバのIPアドレスやホストを。空欄はローカルホスト
-        'HOST': '192.168.0.22',
+        'HOST': 'api-server',
        # ポート
        'PORT': '3306',
        'OPTIONS': {

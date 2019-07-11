@@ -5,6 +5,10 @@ import json
 import datetime
 import io,sys
 import codecs
+<<<<<<< HEAD
+=======
+from dateutil.parser import parse
+>>>>>>> abaa8347a9dedd53b97620a77c3b71b6f709ebdf
 
 '''--------------------------------------------------------------------------
 Environment variables and script variables used in scripts are defined below.
@@ -32,7 +36,14 @@ def normalizeRecord(record: 'data array of data set') -> 'normalized data':
     date format convert : record[3]
       "mm/dd hhmm" -> " yyyy/mm/dd hh:mm:ss "
     --------------------------------------'''
+<<<<<<< HEAD
     t_datetime = datetime.datetime.strptime( record[3], '%m/%d\u3000%H:%M')
+=======
+    if record[3].replace("\u3000", " ").strip() != "":
+      t_datetime = parse(record[3])
+    else:
+      t_datetime = parse("1/1 0:00")
+>>>>>>> abaa8347a9dedd53b97620a77c3b71b6f709ebdf
     record[3] = t_datetime.strftime('%Y/%m/%d %H:%M:%S')
 
     '''--------------------------------------
@@ -49,7 +60,7 @@ def genInsertSql(record: 'normalized data') -> 'sql strings':
     # Read SQL Script
     with open(sql_insert_stockprice) as f:
         sql_string = f.read()
-    sql_string.format(
+    return sql_string.format(
         TABLE_NAME        = db_insert_table,
         MARKET_PROD_CLS   = record[2],
         CURRENT_PRICE     = record[4],
@@ -60,9 +71,7 @@ def genInsertSql(record: 'normalized data') -> 'sql strings':
         SALES_VOLUME      = record[7],
         CREATE_TIMESTAMP  = record[3],
         BLAND_CD          = record[0]
-    )
-    return sql_string
-
+    ).encode('utf-8')
 
 
 '''--------------------------------------------------------------------------
@@ -74,22 +83,36 @@ for result_file in result_files:
     Read JSON file and convert to list
     --------------------------------------'''
     # Read and Execute SQL Script
+<<<<<<< HEAD
     with codecs.open(path_result_folder + "/" + result_file, 'r', 'utf-8') as f:
+=======
+    with codecs.open(path_result_folder + "/" + result_file) as f:
+>>>>>>> abaa8347a9dedd53b97620a77c3b71b6f709ebdf
         data_set = json.load(f)
     '''--------------------------------------
     Normalize data and create insert SQL
-    --------------------------------------'''
-    sql_set = []
-    for data in data_set:
-        sql_string = genInsertSql( normalizeRecord(data) )
-        sql_set.append(sql_string )
-    '''--------------------------------------
     Connect Database and execute SQL
     --------------------------------------'''
-    # Get target value as list
     with MySQLdb.connect(host = db_host, port = db_port, user = db_user, password = db_pass, database = db_database, charset='utf8') as cur:
-        cur.execute(sql_set)
+        error_cnt = 0
+        for data in data_set:
+            try:
+                sql_string = genInsertSql( normalizeRecord(data) )
+                cur.execute(sql_string)
+            except :
+                error_cnt += 1
+    '''--------------------------------------
+    Print process result
+    --------------------------------------'''
+    print("Read JSON File %s" % result_file)
+    print("Can't insert rows: %d" % error_cnt)
+    print("--")
     '''--------------------------------------
     Remove result file
     --------------------------------------'''
+<<<<<<< HEAD
     os.remove(path_result_folder + result_file)
+=======
+    os.remove(path_result_folder + "/" + result_file)
+    
+>>>>>>> abaa8347a9dedd53b97620a77c3b71b6f709ebdf

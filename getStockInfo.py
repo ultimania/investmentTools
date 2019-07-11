@@ -7,8 +7,11 @@ import codecs
 import urllib.request, urllib.error
 import MySQLdb
 
+<<<<<<< HEAD:getStockInfo.py
 sys.stdout = codecs.getwriter('utf_8')(sys.stdout)
 
+=======
+>>>>>>> abaa8347a9dedd53b97620a77c3b71b6f709ebdf:getBlandInfo.py
 '''--------------------------------------------------------------------------
 Environment variables and script variables used in scripts are defined below.
 --------------------------------------------------------------------------'''

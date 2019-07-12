@@ -21,6 +21,7 @@ class T_INDUSTRY_MS(models.Model):
     industry_name       = models.CharField(max_length=128)
     created_at          = models.DateTimeField(auto_now_add=True)
 
+# 銘柄マスタ
 class T_BLAND_MS(models.Model):
     bland_cd            = models.IntegerField(primary_key=True)
     bland_name          = models.CharField(max_length=128)
@@ -32,8 +33,9 @@ class T_BLAND_MS(models.Model):
     access_url_string   = models.URLField(max_length=2083)
     created_at          = models.DateTimeField(auto_now_add=True)
 
+# 株価情報
 class T_STK_PRC_TR(models.Model):
-    bland_cd_id                    = models.ForeignKey(T_BLAND_MS,on_delete=models.CASCADE)
+    bland_cd                    = models.ForeignKey(T_BLAND_MS,on_delete=models.CASCADE)
     market_prod_cls             = models.CharField(max_length=256)
     current_price               = models.FloatField(null=True)
     day_before_ratio            = models.CharField(max_length=64)

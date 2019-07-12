@@ -15,24 +15,19 @@ if __name__ == "__main__":
     myscraper = MyScraper()
     myparser = MyPerser()
 
-    soups = []
-
-    bland_cd = '1301'
-
-    # 対象URL取得
+    # 銘柄情報取得
     try:
-        urls = mytradedo.getUrls(bland_cd)
+        bland_info = mytradedo.getBlandInfo()
     except (ValueError, IndexError) as ex:
         p(ex)
 
     # スクレイピング実行
-    for url in urls:
-        soup = myscraper.scrapeWebPage(url)
-        soups.append(soup)
-
-    # タグ解析
-    for soup in soups:
-        import pdb;pdb.set_trace()
-        contents = myparser.parse('T_STK_PRC_TR', soup)
-        mytradedo.add(bland_cd, 'T_STK_PRC_TR', contents)
-
+    for data in bland_info:
+        # import pdb;pdb.set_trace()
+        soup = myscraper.scrapeWebPage(data['access_url_string'])
+        if(soup is not None):
+            try:
+                contents = myparser.parse('T_STK_PRC_TR', soup)
+                mytradedo.add(data['bland_cd'] ,'T_STK_PRC_TR', contents)
+            except ValueError as e:
+                print(e)

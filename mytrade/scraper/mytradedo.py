@@ -22,43 +22,63 @@ from mytrade.models import T_URL_MS
 
 class MyTradeDo():
 
-    def getUrls(self, bland_cd='none'):
-        self.key = 'access_url_string'
-
-        if(bland_cd == 'none'):
-            self.result = T_BLAND_MS.objects.all().values_list(self.key, flat=True)
+    def getBlandInfo(self, bland_cd=''):
+        if(bland_cd==''):
+            filters={}
         else:
-            self.result = T_BLAND_MS.objects.filter(bland_cd=bland_cd).values_list(self.key, flat=True)
+            filters={"bland_cd": bland_cd}
+
+        self.result = T_BLAND_MS.objects.filter(**filters).values(
+            'bland_cd',
+            'bland_name',
+            'market_prod_cls',
+            'industry_cd',
+            'sub_industry_cd',
+            'scale_cd',
+            'fetch_flg',
+            'access_url_string',
+        )
         return self.result
 
-    def add(self, bland_cd, model_name, contents):
-        self.key='market_prod_cls'
-        self.bland_data = T_BLAND_MS.objects.filter(bland_cd=bland_cd).values_list(self.key, flat=True)
+    def normalizationValue(self, value):
+        if(value=='N/A'):
+            result = '0'
+        else:
+            result = value.translate(str.maketrans({
+                '(' : '',
+                ')' : '',
+                ',' : '',
+                '-' : '0'
+            }))
+        return result
 
+    def add(self, bland_cd, model_name, contents):
+        # 株価情報
         if(model_name=='T_STK_PRC_TR'):
+            self.bland_data = self.getBlandInfo(bland_cd)
             record = T_STK_PRC_TR(
-                        bland_cd_id             = int(bland_cd), 
-                        market_prod_cls         = self.bland_data,
-                        current_price       	= contents[0],
-                        day_before_ratio    	= contents[1],
-                        opening_price       	= contents[2],
-                        high_orice          	= contents[3],
-                        low_price           	= contents[4],
-                        sales_volume        	= contents[5],
-                        exp_per                	= contents[6],
-                        exp_dividend_yield     	= contents[7],
-                        pbr                    	= contents[8],
-                        exp_roe                	= contents[9],
-                        exp_stock_gain         	= contents[10],
-						common_stock_number    	= contents[11],
-						market_capitalization  	= contents[12],
-						special_treatment      	= contents[13],
-						year_to_date_high_price	= contents[14],
-						year_to_date_low_price 	= contents[15],
-						years_10_high          	= contents[16],
-						years_10_low           	= contents[17],
-						trading_unit           	= contents[18],
-						minimum_purchase_price 	= contents[19]
+                bland_cd_id             = int(bland_cd), 
+                market_prod_cls         = self.bland_data[0]['market_prod_cls'],
+                current_price       	= float(self.normalizationValue(contents[0])),
+                day_before_ratio    	= contents[1].translate(str.maketrans({'(':'', ')':''})),
+                opening_price       	= float(self.normalizationValue(contents[2])),
+                high_orice          	= float(self.normalizationValue(contents[3])),
+                low_price           	= float(self.normalizationValue(contents[4])),
+                sales_volume        	= int(self.normalizationValue(contents[5])),
+                exp_per                	= float(self.normalizationValue(contents[6])),
+                exp_dividend_yield     	= float(self.normalizationValue(contents[7])),
+                pbr                    	= float(self.normalizationValue(contents[8])),
+                exp_roe                	= float(self.normalizationValue(contents[9])),
+                exp_stock_gain         	= float(self.normalizationValue(contents[10])),
+                common_stock_number    	= float(self.normalizationValue(contents[11])),
+                market_capitalization  	= float(self.normalizationValue(contents[12])),
+                special_treatment      	= contents[13],
+                year_to_date_high_price	= float(self.normalizationValue(contents[14])),
+                year_to_date_low_price 	= float(self.normalizationValue(contents[15])),
+                years_10_high          	= float(self.normalizationValue(contents[16])),
+                years_10_low           	= float(self.normalizationValue(contents[17])),
+                trading_unit           	= float(self.normalizationValue(contents[18])),
+                minimum_purchase_price 	= float(self.normalizationValue(contents[19]))
             )
             record.save()
 

@@ -5,3 +5,4 @@ urlpatterns = [
     path('', views.index),
     path('bland/', views.bland),
 ]
+

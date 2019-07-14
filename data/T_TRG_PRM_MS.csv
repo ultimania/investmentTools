@@ -1,6 +1,0 @@
-1,"現在値","dd","m-stockPriceElm_value","span"
-2,"前日比","dd","m-stockPriceElm_value","span span"
-3,"始値","span","m-stockInfo_detail_value","span"
-4,"高値","span","m-stockInfo_detail_value","span"
-5,"安値","span","m-stockInfo_detail_value","span"
-6,"売買高","span","m-stockInfo_detail_value","span"

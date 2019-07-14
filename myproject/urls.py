@@ -5,4 +5,3 @@ urlpatterns = [
     path('mytrade/', include('mytrade.urls')),
     path('admin/', admin.site.urls),
 ]
-

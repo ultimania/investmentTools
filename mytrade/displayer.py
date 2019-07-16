@@ -8,28 +8,26 @@ from .models import T_STK_PRC_TR
 
 chart_image_path = 'static/main_chart.png'
 
+
 def getParams(model_name, model_data):
-    if(model_name=='T_STK_PRC_TR'):
+    if(model_name == 'T_STK_PRC_TR'):
         # 画面側パラメータ定義
         params = {
-            'bland_info'        : model_data['T_BLAND_MS'].values()[0],
-            'stock_info'        : model_data[model_name].values()[0],
-            'chart_image_path'  : chart_image_path
+            'bland_info': model_data['T_BLAND_MS'].values()[0],
+            'stock_info': model_data[model_name].values()[0],
+            'chart_image_path': chart_image_path
         }
     return params
 
 # Generate chart image
+
+
 def generateChart(model_name, model_data, sample_mode):
     queryset = model_data[model_name]
 
     # チャートデータ編集
     df_origin = pd.DataFrame(list(queryset.values_list(
-        'created_at'
-        ,'opening_price'
-        ,'high_orice'
-        ,'low_price'
-        ,'current_price'
-        ,'sales_volume'
+        'created_at', 'opening_price', 'high_orice', 'low_price', 'current_price', 'sales_volume'
     )))
     d_ohlcv = {
         'open': 'first',
@@ -44,19 +42,24 @@ def generateChart(model_name, model_data, sample_mode):
 
     # チャート判定
     if(sample_mode == 'week'):
-        df = df_origin.resample('W-MON', closed='left', label='left').agg(d_ohlcv).copy()
+        df = df_origin.resample('W-MON', closed='left',
+                                label='left').agg(d_ohlcv).copy()
     elif(sample_mode == 'month'):
-        df = df_origin.resample('MS', closed='left', label='left').agg(d_ohlcv).copy()
+        df = df_origin.resample('MS', closed='left',
+                                label='left').agg(d_ohlcv).copy()
     elif(sample_mode == 'year'):
-        df = df_origin.resample('YS', closed='left', label='left').agg(d_ohlcv).copy()
+        df = df_origin.resample('YS', closed='left',
+                                label='left').agg(d_ohlcv).copy()
     else:
         df = df_origin.copy()
     df.index = mdates.date2num(df.index)
     arrays = df.reset_index().values
 
     # チャート作成
-    fig, ax = plt.subplots(nrows=2, ncols=1, figsize=(12, 4), sharex=True, gridspec_kw={'height_ratios': [3, 1]})
-    mpl_finance.candlestick_ohlc(ax[0], arrays, width=4, alpha=0.75, colorup='r', colordown='b')
+    fig, ax = plt.subplots(nrows=2, ncols=1, figsize=(
+        12, 4), sharex=True, gridspec_kw={'height_ratios': [3, 1]})
+    mpl_finance.candlestick_ohlc(
+        ax[0], arrays, width=4, alpha=0.75, colorup='r', colordown='b')
     ax[0].plot(df.index, df[avline_key].rolling(4).mean())
     ax[0].plot(df.index, df[avline_key].rolling(13).mean())
     ax[0].plot(df.index, df[avline_key].rolling(26).mean())
@@ -71,9 +74,14 @@ def generateChart(model_name, model_data, sample_mode):
     plt.savefig(chart_image_path)
 
 # get Model Data
-def getModelData(bland_cd):
+
+
+def getModelData(bland_cd=''):
     model_data = {}
-    model_data['T_BLAND_MS'] = T_BLAND_MS.objects.filter(bland_cd=bland_cd)
-    model_data['T_STK_PRC_TR'] = T_STK_PRC_TR.objects.filter(bland_cd=bland_cd)
+    if bland_cd == '':
+        model_data['T_BLAND_MS'] = T_BLAND_MS.objects.all()
+    else:
+        model_data['T_BLAND_MS'] = T_BLAND_MS.objects.filter(bland_cd=bland_cd)
+        model_data['T_STK_PRC_TR'] = T_STK_PRC_TR.objects.filter(bland_cd=bland_cd)
 
     return model_data

@@ -1,3 +1,4 @@
+{% load static %}
 <html>
     <head>
       <meta content='text/html; charset=UTF-8' http-equiv='Content-Type'>
@@ -118,7 +119,6 @@
     </div>
     <div class='container'>
         <span class='image'>
-            {% load static %}
             <img src="{% static "main_chart.png" %}">
         </span>
         <button type="button" onClick="reload('day')">日足</button>

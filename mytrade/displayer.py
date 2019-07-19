@@ -2,26 +2,28 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import mpl_finance
 import pandas as pd
+from django.db.models.query import QuerySet
 
 from .models import T_BLAND_MS
 from .models import T_STK_PRC_TR
 
-chart_image_path = 'static/main_chart.png'
+chart_image_path = '/opt/investmentTools/static/main_chart.png'
 
 
 def getParams(model_name, model_data):
     if(model_name == 'T_STK_PRC_TR'):
-        # 画面側パラメータ定義
         params = {
             'bland_info': model_data['T_BLAND_MS'].values()[0],
             'stock_info': model_data[model_name].values()[0],
             'chart_image_path': chart_image_path
         }
+    elif(model_name == 'T_BLAND_MS'):
+        params = {
+            'bland_info': model_data['T_BLAND_MS'].values(),
+        }
     return params
 
 # Generate chart image
-
-
 def generateChart(model_name, model_data, sample_mode):
     queryset = model_data[model_name]
 
@@ -39,17 +41,14 @@ def generateChart(model_name, model_data, sample_mode):
     df_origin.set_index(0, inplace=True)
     df_origin.columns = d_ohlcv.keys()
     avline_key = list(d_ohlcv.keys())[3]
-
+    
     # チャート判定
     if(sample_mode == 'week'):
-        df = df_origin.resample('W-MON', closed='left',
-                                label='left').agg(d_ohlcv).copy()
+        df = df_origin.resample('W-MON', closed='left',label='left').agg(d_ohlcv).copy()
     elif(sample_mode == 'month'):
-        df = df_origin.resample('MS', closed='left',
-                                label='left').agg(d_ohlcv).copy()
+        df = df_origin.resample('MS', closed='left',label='left').agg(d_ohlcv).copy()
     elif(sample_mode == 'year'):
-        df = df_origin.resample('YS', closed='left',
-                                label='left').agg(d_ohlcv).copy()
+        df = df_origin.resample('YS', closed='left',label='left').agg(d_ohlcv).copy()
     else:
         df = df_origin.copy()
     df.index = mdates.date2num(df.index)
@@ -83,5 +82,9 @@ def getModelData(bland_cd=''):
     else:
         model_data['T_BLAND_MS'] = T_BLAND_MS.objects.filter(bland_cd=bland_cd)
         model_data['T_STK_PRC_TR'] = T_STK_PRC_TR.objects.filter(bland_cd=bland_cd)
+
+        query = T_STK_PRC_TR.objects.filter(bland_cd=bland_cd).query
+        query.group_by = ['created_at__month']
+        result = QuerySet(query=query, model=T_STK_PRC_TR)
 
     return model_data

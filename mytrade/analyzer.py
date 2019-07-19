@@ -28,9 +28,12 @@ def learnSvm(bland_cd):
 
     for i in range(1, count_s):
         prev_value = float(stock_data.loc[i-1, ['end']])
-        modified_data.append(
-            float(stock_data.loc[i, ['end']] - prev_value) / float(prev_value * 20)
-        )
+        if prev_value != 0:
+            modified_data.append(
+                float(stock_data.loc[i, ['end']] - prev_value) / float(prev_value * 20)
+            )
+        else:
+            modified_data.append(0)
     count_m = len(modified_data)
 
     continuity = 4  # 連続日数

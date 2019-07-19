@@ -153,3 +153,4 @@ DATABASES = {
    }
 }
 
+PAGE_PER_ITEM = 20

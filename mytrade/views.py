@@ -1,5 +1,8 @@
 from django.shortcuts import render
 from django.http.response import HttpResponse
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.conf import settings
+
 import sys
 import io
 from . import displayer
@@ -7,9 +10,19 @@ from . import analyzer
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
+# PageNation
+def paginate_query(request, queryset, count):
+    paginator = Paginator(queryset, count)
+    page = request.GET.get('page')
+    try:
+        page_obj = paginator.page(page)
+    except PageNotAnInteger:
+        page_obj = paginator.page(1)
+    except EmptyPage:
+        page_obj = paginator.page(paginator.num_pages)
+    return {'page_obj' : page_obj, 'paginator' : paginator}
+
 # Render Index Page
-
-
 def index(request):
     return render(request, 'index.haml')
 
@@ -20,10 +33,11 @@ def bland(request):
     req_sample_mode = request.GET.get('sample_mode')
 
     # パラメータ判定
-    if req_bland_cd is None:
+    if req_bland_cd == '':
         # モデルデータの取得
         render_file = 'bland_home.html'
         model_data = displayer.getModelData()
+        params = paginate_query(request, model_data['T_BLAND_MS'], settings.PAGE_PER_ITEM)
     else:
         # モデルデータの取得とチャート作成
         render_file = 'bland.html'
@@ -31,8 +45,9 @@ def bland(request):
         displayer.generateChart('T_STK_PRC_TR', model_data, req_sample_mode)
         params = displayer.getParams('T_STK_PRC_TR', model_data)
 
-    # 株価データの学習と予測結果の取得
-    pred_result = analyzer.learnSvm(req_bland_cd)
-    params.update({'pred_result': pred_result})
+        # 株価データの学習と予測結果の取得
+        pred_result = analyzer.learnSvm(req_bland_cd)
+        params.update({'pred_result': pred_result})
 
+    # import pdb;pdb.set_trace()
     return render(request, render_file, params)

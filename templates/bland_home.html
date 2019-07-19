@@ -50,32 +50,25 @@
       </nav>
     </div>
   </header>
-  <table>
-    <tr>
-      <th>都道府県</th>
-      <th>面積</th>
-      <th>人口</th>
-      <th>人口密度</th>
-    </tr>
-    <tr>
-      <td>愛知県</td>
-      <td>5,172km2</td>
-      <td>7,526,911人</td>
-      <td>1,455人/km2</td>
-    </tr>
-    <tr>
-      <td>東京都</td>
-      <td>2,193km2</td>
-      <td>13,742,906人</td>
-      <td>6,263人/km2</td>
-    </tr>
-    <tr>
-      <td>大阪府</td>
-      <td>1,905km2</td>
-      <td>8,831,642人</td>
-      <td>4,635人/km2</td>
-    </tr>
-  </table>
+  <div class='container'>
+    <table>
+      <tr>
+        <th>銘柄コード</th>
+        <th width="60%">銘柄名</th>
+        <th>上場市場</th>
+        <th>リンク</th>
+      </tr>
+    {% for bland in page_obj %}
+      <tr>
+        <td><a href ="?bland_cd={{bland.bland_cd}}"> {{bland.bland_cd}} </a></td>
+        <td> {{bland.bland_name}} </td>
+        <td> {{bland.market_prod_cls}} </td>
+        <td><a href ={{bland.access_url_string}}> <img src="{% static "link.png" %}" width="10%" height="10%"> </a></td>
+      </tr>
+    {% endfor %}
+    </table>
+    {% include 'pagenate.html' %}
+  </div>
   <footer data-block-type='footers' data-id='8' class='fdb-block footer-small'>
     <div class='container'>
       <div class='row text-center align-items-center'>

@@ -2,6 +2,7 @@ table{
   width: 100%;
   border-collapse:separate;
   border-spacing: 0;
+  table-layout: fixed;
 }
 
 table th:first-child{
@@ -21,7 +22,6 @@ table th{
   border-top: 1px solid #3c6690;
   border-bottom: 1px solid #3c6690;
   box-shadow: 0px 1px 1px rgba(255,255,255,0.3) inset;
-  width: 25%;
   padding: 10px 0;
 }
 
@@ -31,7 +31,6 @@ table td{
   border-bottom: 1px solid #a8b7c5;
   border-top:none;
   box-shadow: 0px -3px 5px 1px #eee inset;
-  width: 25%;
   padding: 10px 0;
 }
 
@@ -45,4 +44,16 @@ table tr:last-child td:first-child {
 
 table tr:last-child td:last-child {
   border-radius: 0 0 5px 0;
+}
+
+nav {
+  overflow:hidden;
+}
+nav ul {
+  position:relative;
+  left:40%;
+  float:left;
+}
+nav ul li {
+  float:left;
 }

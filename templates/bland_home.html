@@ -1,55 +1,7 @@
+{% extends '_base.html' %}
 {% load static %}
-<html>
-    <head>
-      <meta content='text/html; charset=UTF-8' http-equiv='Content-Type'>
-      <meta content='width=device-width, initial-scale=1' name='viewport'>
-      <link href='https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css' rel='stylesheet'>
-      <link href='https://cdn.jsdelivr.net/gh/froala/design-blocks@master/dist/css/froala_blocks.min.css' rel='stylesheet'>
-      <link href='https://fonts.googleapis.com/css?family=Roboto:100,100i,300,300i,400,400i,500,500i,700,700i,900,900i' rel='stylesheet'>
-      <link href='https://cdn.jsdelivr.net/npm/froala-editor@2.9.1/css/froala_editor.pkgd.min.css' rel='stylesheet'>
-      <link href='https://cdn.jsdelivr.net/npm/froala-editor@2.9.1/css/froala_style.min.css' rel='stylesheet'>
-      <link href="{% static "table.css" %}" rel='stylesheet'>
-    </head>
-  </html>
-  <header data-block-type='headers' data-id='10'>
-    <div class='container'>
-      <nav class='navbar navbar-expand-md no-gutters'>
-        <button aria-controls='navbarNav7' aria-expanded='false' aria-label='Toggle navigation' data-target='.navbar-collapse-2' data-toggle='collapse' type='button' class='navbar-toggler'>
-          <span class='navbar-toggler-icon'></span>
-        </button>
-        <div class='collapse navbar-collapse navbar-collapse-2 justify-content-center col-md-6' id='navbarNav7'>
-          <ul class='navbar-nav justify-content-center'>
-            <li class='nav-item active'>
-              <a href='https://www.froala.com' class='nav-link'>
-                Home
-                <span class='sr-only'>(current)</span>
-              </a>
-            </li>
-            <li class='nav-item'>
-              <a href='https://www.froala.com' class='nav-link'>Features</a>
-            </li>
-            <li class='nav-item'>
-              <a href='https://www.froala.com' class='nav-link'>Pricing</a>
-            </li>
-            <li class='nav-item'>
-              <a href='https://www.froala.com' class='nav-link'>Team</a>
-            </li>
-            <li class='nav-item'>
-              <a href='https://www.froala.com' class='nav-link'>Contact</a>
-            </li>
-          </ul>
-        </div>
-        <div class='collapse navbar-collapse navbar-collapse-2'>
-          <ul class='navbar-nav ml-auto justify-content-end'>
-            <li class='nav-item'>
-              <a href='https://www.froala.com' class='nav-link'>Log In</a>
-            </li>
-          </ul>
-          <a href='https://www.froala.com' class='btn ml-md-3'>Register</a>
-        </div>
-      </nav>
-    </div>
-  </header>
+
+{% block content%}
   <div class='container'>
     <table>
       <tr>
@@ -63,40 +15,10 @@
         <td><a href ="?bland_cd={{bland.bland_cd}}"> {{bland.bland_cd}} </a></td>
         <td> {{bland.bland_name}} </td>
         <td> {{bland.market_prod_cls}} </td>
-        <td><a href ={{bland.access_url_string}}> <img src="{% static "link.png" %}" width="10%" height="10%"> </a></td>
+        <td><a href ={{bland.access_url_string}}> <img src="{% static "images/link.png" %}" width="10%" height="10%"> </a></td>
       </tr>
     {% endfor %}
     </table>
-    {% include 'pagenate.html' %}
   </div>
-  <footer data-block-type='footers' data-id='8' class='fdb-block footer-small'>
-    <div class='container'>
-      <div class='row text-center align-items-center'>
-        <div class='col mt-4 mt-lg-0 text-center'>
-          <ul class='nav justify-content-center'>
-            <li class='nav-item'>
-              <a href='https://www.froala.com' class='nav-link active'>Home</a>
-            </li>
-            <li class='nav-item'>
-              <a href='https://www.froala.com' class='nav-link'>Features</a>
-            </li>
-            <li class='nav-item'>
-              <a href='https://www.froala.com' class='nav-link'>Privacy Policy</a>
-            </li>
-            <li class='nav-item'>
-              <a href='https://www.froala.com' class='nav-link'>Terms</a>
-            </li>
-            <li class='nav-item'>
-              <a href='https://www.froala.com' class='nav-link'>About</a>
-            </li>
-          </ul>
-        </div>
-      </div>
-      <div class='row mt-4'>
-        <div class='col text-center'>
-          © 2019 mytradeApp. All Rights Reserved
-        </div>
-      </div>
-    </div>
-  </footer>
-  
+{% include 'pagenate.html' %}
+{% endblock content%}

@@ -22,9 +22,17 @@ def paginate_query(request, queryset, count):
         page_obj = paginator.page(paginator.num_pages)
     return {'page_obj' : page_obj, 'paginator' : paginator}
 
+# Render Login Page
+def signup(request):
+    return render(request, 'signup.html')
+
+# Render Login Page
+def login(request):
+    return render(request, 'login.html')
+
 # Render Index Page
 def index(request):
-    return render(request, 'index.haml')
+    return render(request, 'index.html')
 
 # Render Bland Page
 def bland(request):

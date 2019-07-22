@@ -1,0 +1,56 @@
+{% extends '_base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block content %}
+<section class="fdb-block py-0 fp-active" data-block-type="forms" data-id="1" draggable="true">
+  <div class="container py-5 my-5" style="background-image: url(https://cdn.jsdelivr.net/gh/froala/design-blocks@2.0.1/dist/imgs//shapes/4.svg);">
+    <div class=" row justify-content-end">
+      <div class="col-12 col-md-8 col-lg-6 col-xl-5 text-left">
+        <div class="fdb-box">
+          <div class="row">
+            <div class="col">
+              <h1>サインイン</h1>
+              {% if form.errors %}
+              <p>ユーザ名とパスワードが違います。再度試してください</p> 
+              {% endif %}
+
+              {% if next %}
+                {% if user.is_authenticated %}
+                <p> あなたのアカウントはこのページにアクセスできません。続行するにはアクセス権のあるアカウントでログインしてください。</p>
+                {% else %}
+                <p> ログインしてください </p>
+                {% endif %}
+              {% endif %}
+
+            </div>
+          </div>
+          <form method="post" action="{% url 'login' %}">
+            {% csrf_token %}
+            <div class="row">
+              <div class="col mt-4">
+                {{ form.username|add_class:"form-control"|attr:"placeholder:username" }}
+              </div>
+            </div>
+            <div class="row mt-4">
+              <div class="col">
+                {{ form.password|add_class:"form-control"|attr:"placeholder:Password" }}
+              </div>
+            </div>
+          <div class="row mt-4">
+            <div class="col">
+              <input class="btn btn-secondary" type="submit" value="Sign In" />
+              <input type="hidden" name="next" value="{{ next }}" /> 
+            </div>
+            <div class="col">
+              <a href="{% url 'accounts:signup' %}" class='nav-link'>
+                <button class="btn btn-primary" type="button">Sign Up</button>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

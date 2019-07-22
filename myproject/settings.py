@@ -37,8 +37,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'mytrade',
     'rest_framework',
+    'mytrade',
+    'accounts',
+    'widget_tweaks',
 ]
 
 MIDDLEWARE = [
@@ -154,3 +156,9 @@ DATABASES = {
 }
 
 PAGE_PER_ITEM = 20
+
+# Login Redirect Page
+LOGIN_REDIRECT_URL = '/mytrade/bland'
+
+# メールをコンソールに表示する
+EMAIL_BACKEND='django.core.mail.backends.console.EmailBackend'

@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.http.response import HttpResponse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.conf import settings
+from django.contrib.auth.decorators import login_required
 
 import sys
 import io
@@ -23,10 +24,6 @@ def paginate_query(request, queryset, count):
     return {'page_obj' : page_obj, 'paginator' : paginator}
 
 # Render Login Page
-def signup(request):
-    return render(request, 'signup.html')
-
-# Render Login Page
 def login(request):
     return render(request, 'login.html')
 
@@ -35,6 +32,7 @@ def index(request):
     return render(request, 'index.html')
 
 # Render Bland Page
+@login_required
 def bland(request):
     # クエリパラメータの取得
     req_bland_cd = '' if request.GET.get('bland_cd') is None else request.GET.get('bland_cd')

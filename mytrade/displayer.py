@@ -7,7 +7,7 @@ from django.db.models.query import QuerySet
 from .models import T_BLAND_MS
 from .models import T_STK_PRC_TR
 
-chart_image_path = '/opt/investmentTools/static/main_chart.png'
+chart_image_path = '/opt/investmentTools/static/images/main_chart.png'
 
 
 def getParams(model_name, model_data):

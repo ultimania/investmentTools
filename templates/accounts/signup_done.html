@@ -1,0 +1,31 @@
+{% extends '_base.html'  %}
+{% load widget_tweaks %}
+
+{% block content %}
+<section class="fdb-block pt-0 fp-active" style="background-image: url(https://cdn.jsdelivr.net/gh/froala/design-blocks@2.0.1/dist/imgs//shapes/8.svg)" data-block-type="contacts" data-id="1" draggable="true">
+  <div class="bg-gray">
+    <div class="container">
+      <div class="row-50"></div>
+      <div class="row text-left">
+        <div class="col-8">
+          <h1>仮登録しました</h1>
+        </div>
+      </div>
+      <div class="row-50"></div>
+    </div>
+  </div>
+  <div class="container bg-r">
+    <div class="row-10"></div>
+      <div class="col-12 col-md-8 col-lg-6 col-xl-5 text-left">
+        仮登録が完了しました。入力したメールアドレス宛に本登録用のURLを送付しましたのでご確認いただき本登録を実施してください。
+        <form method="post">
+          {% csrf_token %}
+          <div class="row mt-4">
+            <button type="submit" class="btn btn-primary">再送信する</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

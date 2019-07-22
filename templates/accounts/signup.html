@@ -1,0 +1,45 @@
+{% extends '_base.html'  %}
+{% load widget_tweaks %}
+
+{% block content %}
+<section class="fdb-block pt-0 fp-active" style="background-image: url(https://cdn.jsdelivr.net/gh/froala/design-blocks@2.0.1/dist/imgs//shapes/8.svg)" data-block-type="contacts" data-id="1" draggable="true">
+  <div class="bg-gray">
+    <div class="container">
+      <div class="row-50"></div>
+      <div class="row text-left">
+        <div class="col-8">
+          <h1>サインアップ</h1>
+          {% if form.errors %}
+          <p>{{ form.errors }}</p> 
+          {% endif %}
+        </div>
+      </div>
+      <div class="row-50"></div>
+    </div>
+  </div>
+  <div class="container bg-r">
+    <div class="row-10"></div>
+      <div class="col-12 col-md-8 col-lg-6 col-xl-5 text-left">
+        <form method="post">
+          {% csrf_token %}
+          <div class="row mt-4">
+            {{ form.username|add_class:"form-control"|attr:"placeholder:ユーザ名を入力" }}
+          </div>
+          <div class="row mt-4">
+            {{ form.password1|add_class:"form-control"|attr:"placeholder:パスワードを入力" }}
+          </div>
+          <div class="row mt-4">
+            {{ form.password2|add_class:"form-control"|attr:"placeholder:確認用のパスワードを入力" }}
+          </div>
+          <div class="row mt-4">
+            {{ form.email|add_class:"form-control"|attr:"placeholder:Eメールアドレスを入力" }}
+          </div>
+          <div class="row mt-4">
+            <button type="submit" class="btn btn-primary">Sign Up</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

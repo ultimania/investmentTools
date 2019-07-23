@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'mytrade',
     'accounts',
     'widget_tweaks',
+    'feivs2019AccountManager',
 ]
 
 MIDDLEWARE = [

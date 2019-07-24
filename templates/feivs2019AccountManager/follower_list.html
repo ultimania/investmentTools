@@ -1,5 +1,27 @@
-<ul>
-  {% for item in object_list %}
-  <li>{{ item }}</li>
-  {% endfor %}
-</ul>
+{% extends '_base.html' %}
+{% block content %}
+
+<section class="fdb-block" data-block-type="features" data-id="1" draggable="true">
+  <div class="container">
+    <div class="row text-right align-items-center">
+      <div class="col-7 col-md-4 m-auto">
+        <div class="row mt-4">
+          <a href="{% url 'twitter:get_gollowers' %}" class='nav-link'><button type="submit" class="btn btn-primary">フォロワー情報を取得する</button></a>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-7 col-lg-5 m-auto text-left pt-5 pt-md-0">
+      {% for item in object_list %}
+        <div class="row pb-lg-5">
+          <div class="col-3">
+            {{ item }}
+          </div>
+        </div>
+      {% endfor %}
+      </div>
+
+    </div>
+  </div>
+</section>
+
+{% endblock %}

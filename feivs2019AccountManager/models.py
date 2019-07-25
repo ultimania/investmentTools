@@ -28,12 +28,6 @@ class Users(models.Model):
     statuses_count              = models.IntegerField(null=True)
 
 class UsersManager(models.Manager):
-    # 相互関係の取得
-    def extractReciprocity(self, user_model_data, user_info, my_screen_name):
-        friendship = self.api.show_friendship(source_screen_name=my_screen_name, target_screen_name=user_info.screen_name)
-        user_model_data['follow_flg'] = friendship[0].following
-        user_model_data['follower_flg'] = friendship[0].followed_by
-
     # 共通のフォロワーの抽出
     def extractCommonAccount(self, user_info, my_followers_copy):
         my_followers   = list(my_followers_copy)
@@ -92,7 +86,10 @@ class UsersManager(models.Manager):
         user_model_data['description']     = user_info.description
         user_model_data['follows_cnt']     = user_info.friends_count
         user_model_data['followers_cnt']   = user_info.followers_count
-        # user_model_data['favourites_cnt']  = user_info.favourites_count
+        if self.get_flg:
+            user_model_data['follower_flg']    = True
+        else:
+            user_model_data['follow_flg']    = True
         user_model_data['listed_cnt']      = user_info.listed_count
         user_model_data['statuses_count']  = user_info.statuses_count
 
@@ -102,28 +99,31 @@ class UsersManager(models.Manager):
         auth.set_access_token('1144832203748102144-A0Wil7DdPpws8uOwUhSdZJAHWYgf2T', 'EtQaNG0yg0FkN5RNp3Ad744GW7cwNQsJhZlmj3ONc2iQX')
         self.api = tweepy.API(auth, wait_on_rate_limit=True)
 
-    # フォロワーに関する情報の取得
-    def getFollowers(self, cursor, user_model_data):
-        self.my_followers = tweepy.Cursor(self.api.followers_ids, id=self.account_name, cursor=cursor).pages(1)
-        my_followers = copy.deepcopy(self.my_followers)
-        # 各フォロワーの情報を取得・統計してモデルに格納
-        for my_follower in my_followers.next():
+    # ユーザに関する情報の取得
+    # get_flg  True: follower  , False: friend
+    def getUsers(self, cursor, user_model_data, get_flg):
+        self.get_flg = get_flg
+        if get_flg:
+            self.my_users = tweepy.Cursor(self.api.followers_ids, id=self.account_name, cursor=cursor).pages(1)
+        else:
+            self.my_users = tweepy.Cursor(self.api.friends_ids, id=self.account_name, cursor=cursor).pages(1)
+        my_users = copy.deepcopy(self.my_users)
+        # 各ユーザの情報を取得・統計してモデルに格納
+        for my_follower in my_users.next():
             try:
-                # フォロワーのアカウント情報の取得
+                # [API発行]　アカウント情報の取得
                 user_info = self.api.get_user(my_follower)
                 print(user_info.id_str)
                 tmp_dict = {}
                 # 基本情報の取得
                 self.extractBaseInfo(tmp_dict, user_info)
                 # 共通アカウント統計値の取得
-                # tmp_dict['cmn_followers_cnt'] = len(self.extractCommonAccount(user_info, copy.deepcopy(self.my_followers)))
-                # 相互関係の取得
-                # self.extractReciprocity(tmp_dict, user_info, self.account_name)
+                # tmp_dict['cmn_followers_cnt'] = len(self.extractCommonAccount(user_info, copy.deepcopy(self.my_users)))
                 user_model_data.append(tmp_dict)
             except tweepy.error.TweepError as e:
                 print(e.reason)
                 pass
-        return my_followers.next_cursor
+        return my_users.next_cursor
 
     # 統計に関する情報の取得    
     def getFollowersStatics(self, rootflg=True):

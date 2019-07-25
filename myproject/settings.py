@@ -151,6 +151,7 @@ DATABASES = {
         'PORT': os.environ.get('DB_PORT', '3306'),
         'OPTIONS': {
             'sql_mode': 'traditional',
+            'charset': 'utf8mb4',
         },
         'TEST_NAME': 'auto_tests',
    }

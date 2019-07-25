@@ -1,27 +1,72 @@
 {% extends '_base.html' %}
+
 {% block content %}
-
-<section class="fdb-block" data-block-type="features" data-id="1" draggable="true">
-  <div class="container">
-    <div class="row text-right align-items-center">
-      <div class="col-7 col-md-4 m-auto">
-        <div class="row mt-4">
-          <a href="{% url 'twitter:users' %}" class='nav-link'><button type="submit" class="btn btn-primary">フォロワー情報を取得する</button></a>
-        </div>
-      </div>
-
-      <div class="col-12 col-md-7 col-lg-5 m-auto text-left pt-5 pt-md-0">
-      {% for item in object_list %}
-        <div class="row pb-lg-5">
-          <div class="col-3">
-            {{ item }}
-          </div>
-        </div>
+  <table>
+    <thead>
+      <tr>
+        <th>表示名</th>
+        <th>名前</th>
+        <th>リツイートしてくれた数</th>
+        <th>いいねしてくれた数</th>
+        <th>私がリプライした数</th>
+        <th>フォローしている</th>
+        <th>フォローされている</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for user in users %}
+        <tr>
+          <td>{{ user.screen_name }}</a></td>
+          <td>{{ user.name }}</td>
+          <td>{{ user.retweets_cnt_for_me }}</td>
+          <td>{{ user.favourites_cnt_for_me }}</td>
+          <td>{{ user.my_replies_cnt }}</td>
+          <td>{% if user.follow_flg == 1 %}YES {% else %}NO{% endif %}</td>
+          <td>{% if user.follower_flg == 1 %}YES {% else %}NO{% endif %}</td>
+        </tr>
       {% endfor %}
-      </div>
+    </tbody>
+  </table>
 
-    </div>
-  </div>
-</section>
+  {% if is_paginated %}
+    <nav aria-label="Topics pagination" class="mb-4">
+      <ul class="pagination">
+        {% if page_obj.has_previous %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+          </li>
+        {% else %}
+          <li class="page-item disabled">
+            <span class="page-link">Previous</span>
+          </li>
+        {% endif %}
+
+        {% for page_num in paginator.page_range %}
+          {% if page_obj.number == page_num %}
+            <li class="page-item active">
+              <span class="page-link">
+                {{ page_num }}
+                <span class="sr-only">(current)</span>
+              </span>
+            </li>
+          {% else %}
+            <li class="page-item">
+              <a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
+            </li>
+          {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+          </li>
+        {% else %}
+          <li class="page-item disabled">
+            <span class="page-link">Next</span>
+          </li>
+        {% endif %}
+      </ul>
+    </nav>
+  {% endif %}
 
 {% endblock %}

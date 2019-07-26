@@ -3,6 +3,7 @@ from django.shortcuts import get_object_or_404, render
 from .models import Users, UsersManager, MyTweets, MyTweetsManager
 from django.db import utils
 from django.db.models import Count
+from rest_framework import viewsets
 
 # Create your views here.
 class MyListView(generic.ListView):
@@ -15,12 +16,14 @@ class MyListView(generic.ListView):
         queryset = Users.objects.filter(favourites_cnt_for_me__gt=0).order_by('-favourites_cnt_for_me')
         return queryset
 
+# GET /twitter/myretweet リクエストを受けて呼び出される
 def retweetMytweet(request):
     model = MyTweets()
     model_manager = MyTweetsManager()
     model_manager.retweetMytweet()
     return render(request, 'feivs2019AccountManager/follower_list.html')
 
+# GET /twitter/get_users リクエストを受けて呼び出される
 def getFollowers(request):
     get_mode = request.GET.get('get_mode')
     get_flg = {'follower': True, 'friend': False}

@@ -17,6 +17,8 @@ class MyTweets(models.Model):
     tweet_string                = models.CharField(max_length=280)
     bot_retweet_cnt             = models.IntegerField(null=True,default=0)
     reply_to_id                 = models.BigIntegerField(null=True)
+    hashtags                    = models.CharField(max_length=280,null=True)
+    urls                        = models.CharField(max_length=1024,null=True)
 
 class MyTweetsManager(models.Manager):
     # API認証    
@@ -36,7 +38,13 @@ class MyTweetsManager(models.Manager):
         # 自分のツイートIDのリストを取得 [API statuses/home_timeline 15]
         mytweets = self.api.user_timeline(id=self.account_name, count=100)
         for mytweet in mytweets :
-            model_data = {'tweet_id': mytweet.id, 'tweet_string': mytweet.text , 'reply_to_id': mytweet.in_reply_to_status_id}
+            model_data = {
+                'tweet_id'      : mytweet.id
+                ,'tweet_string' : mytweet.text 
+                ,'reply_to_id'  : mytweet.in_reply_to_status_id
+                ,'hashtags'     : mytweet.entities['hashtags']
+                ,'urls'         : mytweet.entities['urls']
+            }
             try:
                 if MyTweets.objects.filter(tweet_id=mytweet.id).update(**model_data) == 0:
                     MyTweets.objects.filter(tweet_id=mytweet.id).create(**model_data)
@@ -44,9 +52,11 @@ class MyTweetsManager(models.Manager):
                 import traceback; traceback.print_exc()
                 pass
         # 除外ワードのないツイートかつBotリツイート数が最少の1件を取得する
-        exclude_word = ''
-        retweet_id = MyTweets.objects.exclude(tweet_string=exclude_word).filter(reply_to_id__isnull=True).order_by('bot_retweet_cnt','tweet_id').first()
-        #import pdb;pdb.set_trace()
+        exclude_word = 'おはようございます'
+        retweet_id = MyTweets.objects.exclude(tweet_string__contains=exclude_word).exclude(reply_to_id__isnull=False).order_by('bot_retweet_cnt','tweet_id').first()
+        # Botツイート数をカウントアップする
+        MyTweets.objects.filter(tweet_id=retweet_id.tweet_id).update(bot_retweet_cnt=retweet_id.bot_retweet_cnt+1)
+        # import pdb;pdb.set_trace()
         self.api.retweet(retweet_id.tweet_id)
 
 class Users(models.Model):
@@ -189,7 +199,7 @@ class UsersManager(models.Manager):
     def getUsersStatics(self, user_model_data):
         tmp_dict = {}
         # 自分のツイートIDのリストを取得 [API statuses/home_timeline 15]  100件
-        tweet_id_list = self.api.user_timeline(id=self.account_name, count=50)
+        tweet_id_list = self.api.user_timeline(id=self.account_name, count=100)
         # 自分のツイートに対してのリツイートの統計 [API発行 statuses/retweeters/ids 300]
         tmp_dict['statics_retweet'] = self.extractStaticRetweet(tweet_id_list)
         # 自分のツイートに対してのいいねの統計
@@ -203,7 +213,6 @@ class UsersManager(models.Manager):
                 tmp_dict['statics_reply'][str(my_user)] = reply_value
         # データ正規化
         self.normalizeStatics(user_model_data, tmp_dict, copy.deepcopy(self.my_users))
-
 
     # コンストラクタ
     def __init__(self, account_name='feivs2019'):

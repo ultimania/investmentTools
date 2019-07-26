@@ -1,0 +1,5 @@
+# enc file
+*.enc
+
+# password file
+password*

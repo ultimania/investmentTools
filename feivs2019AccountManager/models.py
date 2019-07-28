@@ -286,15 +286,15 @@ class UsersManager(models.Manager):
             user_model = {} # 各ユーザのデータ格納用
             if my_user in tmp_dict['statics_favorite']:
                 tmp = users_master.filter(user_id=my_user).values_list('favourites_cnt_for_me',flat=True).get()
-                org = 0 if org is None else tmp
+                org = 0 if tmp is None else tmp
                 user_model['favourites_cnt_for_me'] = tmp_dict['statics_favorite'][my_user] + org
             if my_user in tmp_dict['statics_retweet']:
                 tmp = users_master.filter(user_id=my_user).values_list('retweets_cnt_for_me',flat=True).get()
-                org = 0 if org is None else tmp
+                org = 0 if tmp is None else tmp
                 user_model['retweets_cnt_for_me'] = tmp_dict['statics_retweet'][my_user] + org
             if my_user in tmp_dict['statics_reply']:
                 tmp = users_master.filter(user_id=my_user).values_list('my_replies_cnt',flat=True).get()
-                org = 0 if org is None else tmp
+                org = 0 if tmp is None else tmp
                 user_model['my_replies_cnt'] = tmp_dict['statics_reply'][my_user] + org
             user_model_data[my_user] = user_model
 

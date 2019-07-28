@@ -37,10 +37,11 @@ def getFollowers(request):
     get_flg = {'follower': True, 'friend': False}
     model_manager = UsersManager()
 
-    if diff_mode == 'True':
-        model_manager.getUsers(user_flg=get_flg[get_mode])
-    elif diff_mode == 'False':
+    if diff_mode == 'False':
         model_manager.getUsers(user_flg=get_flg[get_mode], diff_mode=False)
+    else:
+        model_manager.getUsers(user_flg=get_flg[get_mode])
+
     model_manager.getUsersStatics()
     return render(request, 'feivs2019AccountManager/blank.html')
 

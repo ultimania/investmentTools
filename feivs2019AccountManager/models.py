@@ -231,17 +231,18 @@ class UsersManager(models.Manager):
         self.user_flg = user_flg
         user_model_data = []
 
+        import pdb;pdb.set_trace()
         # [API followers/ids friends/ids 15] フォロー/フォロワー情報の取得
         if user_flg: 
             api_users = tweepy.Cursor(self.api.followers_ids, id=self.account_name, cursor=-1).items()
         else:
             api_users = tweepy.Cursor(self.api.friends_ids, id=self.account_name, cursor=-1).items()
         api_users = set(str(id) for id in copy.deepcopy(api_users))
-
         if diff_mode:
             master_ids = set(Users.objects.values_list('user_id', flat=True))
         else:
-            master_ids = {}
+            master_ids = set({})
+        
         self.my_users = master_ids ^ api_users
         
         for my_user in self.my_users:

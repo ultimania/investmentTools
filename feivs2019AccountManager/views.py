@@ -16,6 +16,13 @@ class MyListView(generic.ListView):
         queryset = Users.objects.filter(favourites_cnt_for_me__gt=0).order_by('-favourites_cnt_for_me')
         return queryset
 
+# GET /twitter/arrange_follow リクエストを受けて呼び出される
+def arrangeFollow(request):
+    model = Users()
+    model_manager = UsersManager()
+    model_manager.arrangeFollow()
+    return render(request, 'feivs2019AccountManager/follower_list.html')
+
 # GET /twitter/myretweet リクエストを受けて呼び出される
 def retweetMytweet(request):
     model = MyTweets()
@@ -26,26 +33,21 @@ def retweetMytweet(request):
 # GET /twitter/get_users リクエストを受けて呼び出される
 def getFollowers(request):
     get_mode = request.GET.get('get_mode')
+    diff_mode = request.GET.get('diff_mode')
     get_flg = {'follower': True, 'friend': False}
-    update_column = {'follower': 'follower_flg', 'friend': 'follow_flg'}
-    udpate_data = {update_column[get_mode]: True}
-
-    model = Users()
     model_manager = UsersManager()
-    user_model_data = []
-    cursor = -1
-    
-    while cursor != 0:
-        cursor = model_manager.getUsers(cursor, user_model_data, get_flg=get_flg[get_mode])
-        for data in user_model_data :
-            try:
-                if Users.objects.filter(user_id=data['user_id']).update(**data) == 0:
-                    Users.objects.filter(user_id=data['user_id']).create(**data)
-            except :
-                import traceback; traceback.print_exc()
-                pass
-    user_model_data = {}
-    model_manager.getUsersStatics(user_model_data)
-    for user_id, data in user_model_data.items():
-        Users.objects.filter(user_id=user_id).update(**data)
+
+    if diff_mode == 'True':
+        model_manager.getUsers(user_flg=get_flg[get_mode])
+    elif diff_mode == 'False':
+        model_manager.getUsers(user_flg=get_flg[get_mode], diff_mode=False)
+    model_manager.getUsersStatics()
+    return render(request, 'feivs2019AccountManager/follower_list.html')
+
+# GET /twitter/refavorite リクエストを受けて呼び出される
+def refavorite(request):
+    model_manager = UsersManager()
+    mode = request.GET.get('mode')
+
+    model_manager.refavorite(mode=mode)
     return render(request, 'feivs2019AccountManager/follower_list.html')

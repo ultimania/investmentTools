@@ -51,3 +51,11 @@ def refavorite(request):
 
     model_manager.refavorite(mode=mode)
     return render(request, 'feivs2019AccountManager/follower_list.html')
+
+# GET /twitter/favorite リクエストを受けて呼び出される
+def refavorite(request):
+    model_manager = UsersManager()
+    keyword = request.GET.get('keyword')
+
+    model_manager.favorite(mode=keyword)
+    return render(request, ' ')

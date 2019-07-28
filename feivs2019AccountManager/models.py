@@ -86,6 +86,25 @@ class Users(models.Model):
 
 class UsersManager(models.Manager):
     '''----------------------------------------
+    favorite: 特定のキーワードのツイートに対していいねする
+        [ パラメータ ]
+        keyword(String): 検索ワード
+        [ 返り値 ]
+        なし
+    ----------------------------------------'''
+    def favorite(self, keyword):
+        model_data = {}
+        # キーワード検索して対象のツイートIDを取得 [API発行 GET search/tweets 450]
+        for tweet in tweepy.Cursor(self.api.search, q=keyword, count=100, tweet_mode='extended').items():
+            # 取得したツイートにいいねする
+            try:
+                # [API発行 POST favorites/create 1000 per user; 1000 per app]
+                self.api.create_favorite(tweet.id)
+            except :
+                import traceback; traceback.print_exc()
+                pass
+
+    '''----------------------------------------
     refavorite: ユーザにいいねを返す
         [ パラメータ ]
         mode(String): モード
@@ -95,7 +114,7 @@ class UsersManager(models.Manager):
     ----------------------------------------'''
     def refavorite(self, mode):
         model_data = {}
-        keyword = {'ohayousentai': 'おはよう戦隊'}
+        keyword = {'ohayousentai': 'おはよう戦隊', 'studyprogram': 'プログラミング学習'}
         # ハッシュタグからキーワード検索して対象のツイートIDを取得
         tweet_id = MyTweets.objects.filter(hashtags__contains=keyword[mode]).order_by('-tweet_id').values_list('tweet_id', flat=True).first()
         # いいねしたアカウントリストを取得

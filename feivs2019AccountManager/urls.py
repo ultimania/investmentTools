@@ -7,4 +7,5 @@ urlpatterns = [
     path('myretweet/', views.retweetMytweet, name='myretweet'),
     path('arrange_follow/', views.arrangeFollow, name='arrange_follow'),
     path('refavorite/', views.refavorite, name='refavorite'),
+    path('favorite/', views.refavorite, name='favorite'),
 ]

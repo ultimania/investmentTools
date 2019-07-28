@@ -95,7 +95,7 @@ class UsersManager(models.Manager):
     def favorite(self, keyword):
         model_data = {}
         # キーワード検索して対象のツイートIDを取得 [API発行 GET search/tweets 450]
-        for tweet in tweepy.Cursor(self.api.search, q=keyword, count=100, tweet_mode='extended').items():
+        for tweet in tweepy.Cursor(self.api.search, q=keyword, count=50, tweet_mode='extended').items():
             # 取得したツイートにいいねする
             try:
                 # [API発行 POST favorites/create 1000 per user; 1000 per app]
@@ -286,12 +286,15 @@ class UsersManager(models.Manager):
             user_model = {} # 各ユーザのデータ格納用
             if my_user in tmp_dict['statics_favorite']:
                 org = users_master.filter(user_id=my_user).values_list('favourites_cnt_for_me',flat=True).get()
+                org = 0 if org is None else org
                 user_model['favourites_cnt_for_me'] = tmp_dict['statics_favorite'][my_user] + org
             if my_user in tmp_dict['statics_retweet']:
                 org = users_master.filter(user_id=my_user).values_list('retweets_cnt_for_me',flat=True).get()
+                org = 0 if org is None else org
                 user_model['retweets_cnt_for_me'] = tmp_dict['statics_retweet'][my_user] + org
             if my_user in tmp_dict['statics_reply']:
                 org = users_master.filter(user_id=my_user).values_list('my_replies_cnt',flat=True).get()
+                org = 0 if org is None else org
                 user_model['my_replies_cnt'] = tmp_dict['statics_reply'][my_user] + org
             user_model_data[my_user] = user_model
 

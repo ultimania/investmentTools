@@ -231,7 +231,6 @@ class UsersManager(models.Manager):
         self.user_flg = user_flg
         user_model_data = []
 
-        import pdb;pdb.set_trace()
         # [API followers/ids friends/ids 15] フォロー/フォロワー情報の取得
         if user_flg: 
             api_users = tweepy.Cursor(self.api.followers_ids, id=self.account_name, cursor=-1).items()

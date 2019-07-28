@@ -41,14 +41,8 @@
         <div class='collapse navbar-collapse navbar-collapse-2'>
           <ul class='navbar-nav ml-auto justify-content-end'>
             <li class='nav-item'>
-            {% if user.is_authenticated %}
-              <a href="{% url 'logout' %}" class='nav-link'>Sign Out</a>
-            {% else %}
-              <a href="{% url 'login' %}" class='nav-link'>Sign In</a>
-            {% endif %}
             </li>
             <li class='nav-item'>
-              <a href="{% url 'accounts:signup' %}" class='btn ml-md-3'>Sign Up</a>
             </li>
           </ul>
         </div>

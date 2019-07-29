@@ -100,6 +100,7 @@ class UsersManager(models.Manager):
             try:
                 # [API発行 POST favorites/create 1000 per user; 1000 per app]
                 self.api.create_favorite(tweet.id)
+                time.sleep(5)
             except :
                 import traceback; traceback.print_exc()
                 pass
@@ -127,6 +128,7 @@ class UsersManager(models.Manager):
                 try:
                     # [API発行 POST favorites/create 1000 per user; 1000 per app]
                     self.api.create_favorite(tweet.id)
+                    time.sleep(5)
                 except :
                     import traceback; traceback.print_exc()
                     pass

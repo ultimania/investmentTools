@@ -1,11 +1,10 @@
 from django.test import TestCase
-
-# scraper Module
-from models import user
+from .models import UsersManager()
 
 # Create your tests here.
-if __name__ == "__main__":
-    # インスタンス生成
-    model = user()
-    model.getFollowers()
-    
+class TestUsersManager(TestCase)
+    def __init__(self):
+        self.usermanager = UsersManager()
+
+    def test_favorite(self):
+        model_manager.favorite(keyword=keyword)

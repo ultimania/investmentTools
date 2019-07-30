@@ -58,7 +58,7 @@ def favorite(request):
     model_manager = UsersManager()
     keyword = request.GET.get('keyword')
     # 特定のワードに変換
-    if keyword == '?studyprogram':
+    if keyword == 'tag_studyprogram':
         keyword = '#プログラミング学習'
     model_manager.favorite(keyword=keyword)
     return render(request, 'feivs2019AccountManager/blank.html')

@@ -141,6 +141,7 @@ class UsersManager(models.Manager):
             except :
                 import traceback; traceback.print_exc()
                 pass
+        return True
 
     '''----------------------------------------
     refavorite: ユーザにいいねを返す
@@ -168,6 +169,7 @@ class UsersManager(models.Manager):
                 except :
                     import traceback; traceback.print_exc()
                     pass
+        return True
 
     '''----------------------------------------
     arrangeFollow: フォロワー情報の整理
@@ -185,6 +187,7 @@ class UsersManager(models.Manager):
             self.myapiDestroyFriendship(account['user_id'])
             Users.objects.filter(user_id=account['user_id']).update(follow_flg=False)
         Users.objects.filter(follow_flg=False, follower_flg=False).delete()
+        return True
 
     # 共通のフォロワーの抽出
     def extractCommonAccount(self, user_info, my_followers_copy):
@@ -216,7 +219,7 @@ class UsersManager(models.Manager):
     def extractStaticFavorite(self, tweet_ids):
         statics = {}
         for tweet_id in tweet_ids:
-            favoriters = self.getUserIDList(tweet_id=tweet_id) # 最大100件
+            favoriters = self.getUserIDList(tweet_id) # 最大100件
             for favoriter in favoriters:
                 if str(favoriter) not in statics:
                     statics[str(favoriter)] = 1
@@ -273,7 +276,7 @@ class UsersManager(models.Manager):
         if user_flg: 
             api_users = self.myapiCursorFollowersIds()
         else:
-            api_users = myapiCursorFriendsIds
+            api_users = self.myapiCursorFriendsIds()
         api_users = set(str(id) for id in copy.deepcopy(api_users))
         if diff_mode:
             master_ids = set(Users.objects.values_list('user_id', flat=True))
@@ -304,6 +307,7 @@ class UsersManager(models.Manager):
             except :
                 traceback.print_exc()
                 pass
+        return True
 
     # データ正規化    
     def normalizeStatics(self, user_model_data, tmp_dict):

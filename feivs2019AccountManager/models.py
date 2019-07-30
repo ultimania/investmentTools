@@ -23,6 +23,9 @@ class MyTweets(models.Model):
     #created_at                  = models.CharField(max_length=64,null=True)
 
 class MyTweetsManager(models.Manager):
+    '''
+        TwitterAPI連携用ラッパー
+    '''
     # API認証    
     def authTwitterAPI(self):
         auth = tweepy.OAuthHandler(API_KEY, API_KEY_SECRET)
@@ -85,6 +88,40 @@ class Users(models.Model):
     statuses_count              = models.IntegerField(null=True)
 
 class UsersManager(models.Manager):
+    '''
+        TwitterAPI連携用ラッパー
+    '''
+    def authTwitterAPI(self):
+        auth = tweepy.OAuthHandler(API_KEY, API_KEY_SECRET)
+        auth.set_access_token(API_TOKEN, API_TOKEN_SECRET)
+        self.api = tweepy.API(auth, wait_on_rate_limit=True)
+
+    def myapiCreateFavorite(tweet_id):
+        time.sleep(10)
+        return self.api.create_favorite(tweet_id)
+
+    def myapiUserTimeline(id, count):
+        return self.api.user_timeline(id=id, count=count)
+
+    def myapiDestroyFriendship(user_id):
+        return self.api.destroy_friendship(user_id)
+
+    def myapiRetweets(id):
+        return self.api.retweets(id=id)
+
+    def myapiGetUser(user_id):
+        return self.api.get_user(user_id)
+
+    def myapiCursorSearch():
+        return tweepy.Cursor(self.api.search, q=keyword, count=10, tweet_mode='extended').items()
+
+    def myapiCursorFollowersIds():
+        return tweepy.Cursor(self.api.followers_ids, id=self.account_name, cursor=-1).items()
+
+    def myapiCursorFriendsIds():
+        return tweepy.Cursor(self.api.friends_ids, id=self.account_name, cursor=-1).items()
+
+
     '''----------------------------------------
     favorite: 特定のキーワードのツイートに対していいねする
         [ パラメータ ]
@@ -95,11 +132,11 @@ class UsersManager(models.Manager):
     def favorite(self, keyword):
         model_data = {}
         # キーワード検索して対象のツイートIDを取得 [API発行 GET search/tweets 450]
-        for tweet in tweepy.Cursor(self.api.search, q=keyword, count=50, tweet_mode='extended').items():
+        for tweet in self.myapiCursorSearch():
             # 取得したツイートにいいねする
             try:
                 # [API発行 POST favorites/create 1000 per user; 1000 per app]
-                self.api.create_favorite(tweet.id)
+                self.myapiCreateFavorite(tweet.id)
                 time.sleep(10)
             except :
                 import traceback; traceback.print_exc()
@@ -122,13 +159,12 @@ class UsersManager(models.Manager):
         favoriter_ids = self.getUserIDList(tweet_id)
         for favoriter_id in favoriter_ids:
             # 各アカウントの最新のツイートを取得
-            tweets = self.api.user_timeline(id=favoriter_id, count=2)
+            tweets = self.myapiUserTimeline(id=favoriter_id, count=1)
             # 取得したツイートにいいねする
             for tweet in tweets:
                 try:
                     # [API発行 POST favorites/create 1000 per user; 1000 per app]
-                    self.api.create_favorite(tweet.id)
-                    time.sleep(10)
+                    self.myapiCreateFavorite(tweet.id)
                 except :
                     import traceback; traceback.print_exc()
                     pass
@@ -146,14 +182,14 @@ class UsersManager(models.Manager):
         accounts = Users.objects.filter(follow_flg=True, follower_flg=False).values()
         # フォロー解除とユーザ情報の更新
         for account in accounts:
-            self.api.destroy_friendship(account['user_id'])
+            self.myapiDestroyFriendship(account['user_id'])
             Users.objects.filter(user_id=account['user_id']).update(follow_flg=False)
         Users.objects.filter(follow_flg=False, follower_flg=False).delete()
 
     # 共通のフォロワーの抽出
     def extractCommonAccount(self, user_info, my_followers_copy):
         my_followers   = list(my_followers_copy)
-        user_followers = list(tweepy.Cursor(self.api.followers_ids, id=user_info.screen_name, cursor=-1).items())
+        user_followers = list(self.myapiCursorFollowersIds())
         return set(my_followers) & set(user_followers)
 
     # 特定のユーザに対してリプライした数の取得
@@ -192,7 +228,7 @@ class UsersManager(models.Manager):
     def extractStaticRetweet(self, tweet_ids):
         statics = {}
         for tweet_id in tweet_ids:
-            retweeters = self.api.retweets(id=tweet_id) # 最大100件
+            retweeters = self.myapiRetweets(id=tweet_id) # 最大100件
             for retweeter in retweeters:
                 if retweeter.user.id_str not in statics:
                     statics[retweeter.user.id_str] = 1
@@ -235,9 +271,9 @@ class UsersManager(models.Manager):
 
         # [API followers/ids friends/ids 15] フォロー/フォロワー情報の取得
         if user_flg: 
-            api_users = tweepy.Cursor(self.api.followers_ids, id=self.account_name, cursor=-1).items()
+            api_users = self.myapiCursorFollowersIds()
         else:
-            api_users = tweepy.Cursor(self.api.friends_ids, id=self.account_name, cursor=-1).items()
+            api_users = myapiCursorFriendsIds
         api_users = set(str(id) for id in copy.deepcopy(api_users))
         if diff_mode:
             master_ids = set(Users.objects.values_list('user_id', flat=True))
@@ -253,7 +289,7 @@ class UsersManager(models.Manager):
                 continue
             try:
                 # [API users/show 900] アカウント情報の取得
-                user_info = self.api.get_user(int(my_user))
+                user_info = self.myapiGetUser(int(my_user))
                 user_model_data.append(self.extractBaseInfo(user_info))
                 # tmp_dict['cmn_followers_cnt'] = len(self.extractCommonAccount(user_info, copy.deepcopy(self.my_users)))
                 # break
@@ -268,18 +304,6 @@ class UsersManager(models.Manager):
             except :
                 traceback.print_exc()
                 pass
-
-    '''----------------------------------------
-    authTwitterAPI: 認証済みインスタンスの取得
-        [ パラメータ ]
-        なし
-        [ 返り値 ]
-        なし
-    ----------------------------------------'''
-    def authTwitterAPI(self):
-        auth = tweepy.OAuthHandler(API_KEY, API_KEY_SECRET)
-        auth.set_access_token(API_TOKEN, API_TOKEN_SECRET)
-        self.api = tweepy.API(auth, wait_on_rate_limit=True)
 
     # データ正規化    
     def normalizeStatics(self, user_model_data, tmp_dict):
@@ -305,7 +329,7 @@ class UsersManager(models.Manager):
         self.my_users = set(Users.objects.values_list('user_id', flat=True))
         user_model_data, tmp_dict = {}, {}
         # 自分のツイートIDのリストを取得 [API statuses/home_timeline 15]  100件
-        api_tweets = self.api.user_timeline(id=self.account_name, count=100)
+        api_tweets = self.myapiUserTimeline(id=self.account_name, count=100)
         api_ids = set(tweet.id for tweet in copy.deepcopy(api_tweets))
         master_ids = set(MyTweets.objects.values_list('tweet_id', flat=True).order_by('-tweet_id')[:200])
         tweet_ids = master_ids ^ api_ids

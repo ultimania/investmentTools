@@ -147,6 +147,9 @@ DATABASES = {
             'charset': 'utf8mb4',
         },
         'TEST_NAME': 'auto_tests',
+        'TEST': {
+            'NAME': 'test_' + os.environ.get('DB_NAME'),
+        }
    }
 }
 

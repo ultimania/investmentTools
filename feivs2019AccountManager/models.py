@@ -138,7 +138,7 @@ class UsersManager(models.Manager):
                 # [API発行 POST favorites/create 1000 per user; 1000 per app]
                 self.myapiCreateFavorite(tweet.id)
                 time.sleep(10)
-            except tweepy.error.TweepError as e:
+            except :
                 import traceback; traceback.print_exc()
         return True
 

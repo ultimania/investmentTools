@@ -112,7 +112,7 @@ class UsersManager(models.Manager):
     def myapiGetUser(self,user_id):
         return self.api.get_user(user_id)
 
-    def myapiCursorSearch(self):
+    def myapiCursorSearch(self, keyword):
         return tweepy.Cursor(self.api.search, q=keyword, count=10, tweet_mode='extended').items()
 
     def myapiCursorFollowersIds(self):
@@ -132,7 +132,7 @@ class UsersManager(models.Manager):
     def favorite(self, keyword):
         model_data = {}
         # キーワード検索して対象のツイートIDを取得 [API発行 GET search/tweets 450]
-        for tweet in self.myapiCursorSearch():
+        for tweet in self.myapiCursorSearch(keyword):
             # 取得したツイートにいいねする
             try:
                 # [API発行 POST favorites/create 1000 per user; 1000 per app]

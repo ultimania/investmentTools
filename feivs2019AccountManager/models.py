@@ -96,29 +96,29 @@ class UsersManager(models.Manager):
         auth.set_access_token(API_TOKEN, API_TOKEN_SECRET)
         self.api = tweepy.API(auth, wait_on_rate_limit=True)
 
-    def myapiCreateFavorite(tweet_id):
+    def myapiCreateFavorite(self,tweet_id):
         time.sleep(10)
         return self.api.create_favorite(tweet_id)
 
-    def myapiUserTimeline(id, count):
+    def myapiUserTimeline(self,id, count):
         return self.api.user_timeline(id=id, count=count)
 
-    def myapiDestroyFriendship(user_id):
+    def myapiDestroyFriendship(self,user_id):
         return self.api.destroy_friendship(user_id)
 
-    def myapiRetweets(id):
+    def myapiRetweets(self,id):
         return self.api.retweets(id=id)
 
-    def myapiGetUser(user_id):
+    def myapiGetUser(self,user_id):
         return self.api.get_user(user_id)
 
-    def myapiCursorSearch():
+    def myapiCursorSearch(self):
         return tweepy.Cursor(self.api.search, q=keyword, count=10, tweet_mode='extended').items()
 
-    def myapiCursorFollowersIds():
+    def myapiCursorFollowersIds(self):
         return tweepy.Cursor(self.api.followers_ids, id=self.account_name, cursor=-1).items()
 
-    def myapiCursorFriendsIds():
+    def myapiCursorFriendsIds(self):
         return tweepy.Cursor(self.api.friends_ids, id=self.account_name, cursor=-1).items()
 
 
@@ -138,9 +138,8 @@ class UsersManager(models.Manager):
                 # [API発行 POST favorites/create 1000 per user; 1000 per app]
                 self.myapiCreateFavorite(tweet.id)
                 time.sleep(10)
-            except :
+            except tweepy.error.TweepError as e:
                 import traceback; traceback.print_exc()
-                pass
         return True
 
     '''----------------------------------------

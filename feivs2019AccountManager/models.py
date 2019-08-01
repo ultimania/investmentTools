@@ -136,7 +136,7 @@ class UsersManager(models.Manager):
             # 取得したツイートにいいねする
             try:
                 # [API発行 POST favorites/create 1000 per user; 1000 per app]
-                self.myapiCreateFavorite(tweet.id)
+                result = self.myapiCreateFavorite(tweet.id)
                 time.sleep(10)
             except :
                 import traceback; traceback.print_exc()
@@ -167,7 +167,6 @@ class UsersManager(models.Manager):
                     self.myapiCreateFavorite(tweet.id)
                 except :
                     import traceback; traceback.print_exc()
-                    pass
         return True
 
     '''----------------------------------------
@@ -270,7 +269,7 @@ class UsersManager(models.Manager):
     def getUsers(self, user_flg, diff_mode=True):
         self.user_flg = user_flg
         user_model_data = []
-
+        import pdb;pdb.set_trace()
         # [API followers/ids friends/ids 15] フォロー/フォロワー情報の取得
         if user_flg: 
             api_users = self.myapiCursorFollowersIds()

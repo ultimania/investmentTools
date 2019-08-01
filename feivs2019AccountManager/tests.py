@@ -2,7 +2,9 @@
 from unittest import TestCase
 from unittest import mock
 from .models import  UsersManager
+from . import views
 import tweepy
+from django.test import Client
 
 '''--------------------------
     ダミークラス
@@ -53,19 +55,19 @@ class DummyUser():
     ダミーメソッド
 --------------------------'''
 def dummyReturnList(self, id=0):
-    return [id for id in range(100)]
+    return [id for id in range(20)]
 
 def dummyReturnTrue(self, id=0):
     return True
 
 def dummyReturnTweets(self, id=0, count=0):
-    return [DummyTweet(value) for value in range(5,5)]
+    return [DummyTweet(value) for value in range(5,6)]
 
 def dummyReturnTweet(self, id=0, count=0):
     return DummyTweet(1)
 
 def dummyReturnUsers(self, id=0, count=0):
-    return [DummyUser(value) for value in range(5,5)]
+    return [DummyUser(value) for value in range(5,6)]
 
 def dummyReturnUser(self, id=0, count=0):
     return DummyUser(1)
@@ -144,4 +146,58 @@ class TestUsersManager(TestCase):
     @mock.patch('feivs2019AccountManager.models.UsersManager.myapiCreateFavorite', mock.MagicMock(side_effect=tweepy.error.TweepError('dummy')))
     def test_Case1_10_favorite_Error(self):
         keyword = '#studyprogram'
-        self.assertRaises(tweepy.error.TweepError('dummy'), self.usersmanager.favorite(keyword=keyword))
+        self.assertRaises(Exception, self.usersmanager.favorite(keyword=keyword))
+
+'''
+    @mock.patch('feivs2019AccountManager.models.UsersManager.myapiCreateFavorite', mock.MagicMock(side_effect=tweepy.error.TweepError('dummy')))
+    @mock.patch('feivs2019AccountManager.models.UsersManager.myapiUserTimeline', dummyReturnTweets)
+    @mock.patch('feivs2019AccountManager.models.UsersManager.getUserIDList', dummyReturnList)
+    def test_Case1_11_refavorite_Error(self):
+        mode = 'ohayousentai'
+        self.assertRaises(Exception, self.usersmanager.refavorite(mode=mode))
+'''
+
+'''--------------------------
+    テストケースクラス
+--------------------------'''
+class TestViews(TestCase):
+    def __init__(self, *args, **kwargs):
+        TestCase.__init__(self,*args,**kwargs)
+        self.client = Client()
+
+    @mock.patch('feivs2019AccountManager.models.UsersManager.myapiDestroyFriendship', dummyReturnTrue)
+    def test_Case2_01_arrangeFollow(self):
+        response = self.client.get('/twitter/arrange_follow/')
+        self.assertEqual(response.status_code, 200)
+
+    @mock.patch('feivs2019AccountManager.models.UsersManager.myapiCursorFollowersIds', dummyReturnList)
+    @mock.patch('feivs2019AccountManager.models.UsersManager.myapiGetUser', dummyReturnUser)
+    def test_Case2_03_getFollowers_friend(self):
+        response = self.client.get('/twitter/get_users/?get_mode=friend')
+        self.assertEqual(response.status_code, 200)
+
+    @mock.patch('feivs2019AccountManager.models.UsersManager.myapiCursorFollowersIds', dummyReturnList)
+    @mock.patch('feivs2019AccountManager.models.UsersManager.myapiGetUser', dummyReturnUser)
+    def test_Case2_04_getFollowers_follower(self):
+        response = self.client.get('/twitter/get_users/?get_mode=follower')
+        self.assertEqual(response.status_code, 200)
+
+    @mock.patch('feivs2019AccountManager.models.UsersManager.myapiCreateFavorite', dummyReturnTrue)
+    @mock.patch('feivs2019AccountManager.models.UsersManager.myapiUserTimeline', dummyReturnTweets)
+    @mock.patch('feivs2019AccountManager.models.UsersManager.getUserIDList', dummyReturnList)
+    def test_Case2_05_refavorite(self):
+        response = self.client.get('/twitter/refavorite/?mode=ohayousentai')
+        self.assertEqual(response.status_code, 200)
+
+    @mock.patch('feivs2019AccountManager.models.UsersManager.myapiCursorSearch', dummyReturnTweets)
+    @mock.patch('feivs2019AccountManager.models.UsersManager.myapiCreateFavorite', dummyReturnTrue)
+    def test_Case2_06_favorite(self):
+        response = self.client.get('/twitter/favorite/?keyword=progate')
+        self.assertEqual(response.status_code, 200)
+
+'''
+    @mock.patch('feivs2019AccountManager.models.UsersManager.myapiDestroyFriendship', dummyReturnTrue)
+    def test_Case2_02_retweetMytweet(self):
+        response = self.client.get('/twitter/myretweet/')
+        self.assertEqual(response.status_code, 200)
+'''

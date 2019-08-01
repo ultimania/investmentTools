@@ -55,19 +55,19 @@ class DummyUser():
     ダミーメソッド
 --------------------------'''
 def dummyReturnList(self, id=0):
-    return [id for id in range(20)]
+    return [id for id in range(3)]
 
 def dummyReturnTrue(self, id=0):
     return True
 
 def dummyReturnTweets(self, id=0, count=0):
-    return [DummyTweet(value) for value in range(5,6)]
+    return [DummyTweet(value) for value in range(2,4)]
 
 def dummyReturnTweet(self, id=0, count=0):
     return DummyTweet(1)
 
 def dummyReturnUsers(self, id=0, count=0):
-    return [DummyUser(value) for value in range(5,6)]
+    return [DummyUser(value) for value in range(2,4)]
 
 def dummyReturnUser(self, id=0, count=0):
     return DummyUser(1)
@@ -161,6 +161,7 @@ class TestUsersManager(TestCase):
     テストケースクラス
 --------------------------'''
 class TestViews(TestCase):
+    @mock.patch("feivs2019AccountManager.models.UsersManager.authTwitterAPI", dummyReturnTrue)
     def __init__(self, *args, **kwargs):
         TestCase.__init__(self,*args,**kwargs)
         self.client = Client()
@@ -170,14 +171,20 @@ class TestViews(TestCase):
         response = self.client.get('/twitter/arrange_follow/')
         self.assertEqual(response.status_code, 200)
 
-    @mock.patch('feivs2019AccountManager.models.UsersManager.myapiCursorFollowersIds', dummyReturnList)
+    @mock.patch('feivs2019AccountManager.models.UsersManager.myapiCursorFriendsIds', dummyReturnList)
     @mock.patch('feivs2019AccountManager.models.UsersManager.myapiGetUser', dummyReturnUser)
+    @mock.patch('feivs2019AccountManager.models.UsersManager.myapiUserTimeline', dummyReturnTweets)
+    @mock.patch('feivs2019AccountManager.models.UsersManager.getUserIDList', dummyReturnList)
+    @mock.patch('feivs2019AccountManager.models.UsersManager.myapiRetweets', dummyReturnTweets)
     def test_Case2_03_getFollowers_friend(self):
-        response = self.client.get('/twitter/get_users/?get_mode=friend')
+        response = self.client.get('/twitter/get_users/?get_mode=friend&diff_mode=False')
         self.assertEqual(response.status_code, 200)
 
     @mock.patch('feivs2019AccountManager.models.UsersManager.myapiCursorFollowersIds', dummyReturnList)
     @mock.patch('feivs2019AccountManager.models.UsersManager.myapiGetUser', dummyReturnUser)
+    @mock.patch('feivs2019AccountManager.models.UsersManager.myapiUserTimeline', dummyReturnTweets)
+    @mock.patch('feivs2019AccountManager.models.UsersManager.getUserIDList', dummyReturnList)
+    @mock.patch('feivs2019AccountManager.models.UsersManager.myapiRetweets', dummyReturnTweets)
     def test_Case2_04_getFollowers_follower(self):
         response = self.client.get('/twitter/get_users/?get_mode=follower')
         self.assertEqual(response.status_code, 200)

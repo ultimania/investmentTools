@@ -269,7 +269,6 @@ class UsersManager(models.Manager):
     def getUsers(self, user_flg, diff_mode=True):
         self.user_flg = user_flg
         user_model_data = []
-        import pdb;pdb.set_trace()
         # [API followers/ids friends/ids 15] フォロー/フォロワー情報の取得
         if user_flg: 
             api_users = self.myapiCursorFollowersIds()
@@ -283,8 +282,10 @@ class UsersManager(models.Manager):
         
         self.my_users = master_ids ^ api_users
         
+        # import pdb;pdb.set_trace()
         for my_user in self.my_users:
-            if my_user not in api_users:
+            if my_user in master_ids:
+                import pdb; pdb.set_trace()
                 Users.objects.filter(user_id=my_user).delete()
                 self.my_users.pop(my_user)
                 continue

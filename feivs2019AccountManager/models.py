@@ -32,6 +32,12 @@ class MyTweetsManager(models.Manager):
         auth.set_access_token(API_TOKEN, API_TOKEN_SECRET)
         self.api = tweepy.API(auth, wait_on_rate_limit=True)
 
+    def myapiUserTimeline(self,id, count):
+        return self.api.user_timeline(id=id, count=count)
+
+    def myapiRetweet(self,tweet_id):
+        return self.api.retweet(tweet_id)
+
     # コンストラクタ
     def __init__(self, account_name='feivs2019'):
         self.authTwitterAPI()
@@ -41,7 +47,7 @@ class MyTweetsManager(models.Manager):
     def retweetMytweet(self):
         model_data = {}
         # 自分のツイートIDのリストを取得 [API statuses/home_timeline 15]
-        mytweets = self.api.user_timeline(id=self.account_name, count=100)
+        mytweets = self.myapiUserTimeline(id=self.account_name, count=100)
         for mytweet in mytweets :
             model_data = {
                 'tweet_id'      : mytweet.id
@@ -60,10 +66,12 @@ class MyTweetsManager(models.Manager):
         # 除外ワードのないツイートかつBotリツイート数が最少の1件を取得する
         exclude_word = 'おはようございます'
         retweet_id = MyTweets.objects.exclude(tweet_string__contains=exclude_word).exclude(reply_to_id__isnull=False).order_by('bot_retweet_cnt','tweet_id').first()
-        # Botツイート数をカウントアップする
-        MyTweets.objects.filter(tweet_id=retweet_id.tweet_id).update(bot_retweet_cnt=retweet_id.bot_retweet_cnt+1)
-        # import pdb;pdb.set_trace()
-        self.api.retweet(retweet_id.tweet_id)
+        #import pdb;pdb.set_trace()
+        if retweet_id is not None:
+            # Botツイート数をカウントアップする
+            MyTweets.objects.filter(tweet_id=retweet_id.tweet_id).update(bot_retweet_cnt=retweet_id.bot_retweet_cnt+1)
+            # import pdb;pdb.set_trace()
+            self.myapiRetweet(retweet_id.tweet_id)
 
 class Users(models.Model):
     user_id                     = models.CharField(max_length=128, null=True)
@@ -283,15 +291,15 @@ class UsersManager(models.Manager):
         self.my_users = master_ids ^ api_users
         
         # import pdb;pdb.set_trace()
-        for my_user in self.my_users:
+        for my_user in copy.deepcopy(self.my_users):
             if my_user in master_ids:
-                import pdb; pdb.set_trace()
+                # import pdb; pdb.set_trace()
                 Users.objects.filter(user_id=my_user).delete()
-                self.my_users.pop(my_user)
+                self.my_users.remove(my_user)
                 continue
             try:
                 # [API users/show 900] アカウント情報の取得
-                user_info = self.myapiGetUser(int(my_user))
+                user_info = self.myapiGetUser(user_id=int(my_user))
                 user_model_data.append(self.extractBaseInfo(user_info))
                 # tmp_dict['cmn_followers_cnt'] = len(self.extractCommonAccount(user_info, copy.deepcopy(self.my_users)))
                 # break

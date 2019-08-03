@@ -105,7 +105,7 @@ class UsersManager(models.Manager):
         self.api = tweepy.API(auth, wait_on_rate_limit=True)
 
     def myapiCreateFavorite(self,tweet_id):
-        time.sleep(10)
+        time.sleep(15)
         return self.api.create_favorite(tweet_id)
 
     def myapiUserTimeline(self,id, count):
@@ -145,7 +145,6 @@ class UsersManager(models.Manager):
             try:
                 # [API発行 POST favorites/create 1000 per user; 1000 per app]
                 result = self.myapiCreateFavorite(tweet.id)
-                time.sleep(10)
             except :
                 import traceback; traceback.print_exc()
         return True

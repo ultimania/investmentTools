@@ -175,6 +175,7 @@ class UsersManager(models.Manager):
                     self.myapiCreateFavorite(tweet.id)
                 except :
                     import traceback; traceback.print_exc()
+                    pass
         return True
 
     '''----------------------------------------

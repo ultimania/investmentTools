@@ -121,7 +121,7 @@ class UsersManager(models.Manager):
         return self.api.get_user(user_id)
 
     def myapiCursorSearch(self, keyword):
-        return tweepy.Cursor(self.api.search, q=keyword, count=10, tweet_mode='extended').items()
+        return self.api.search(q=keyword, count=10, tweet_mode='extended')
 
     def myapiCursorFollowersIds(self):
         return tweepy.Cursor(self.api.followers_ids, id=self.account_name, cursor=-1).items()

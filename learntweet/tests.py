@@ -85,10 +85,29 @@ class TestLearnManager(TestCase):
     テストケースクラス
 --------------------------'''
 class TestViews(TestCase):
+    @mock.patch("feivs2019AccountManager.models.MyTweetsManager.authTwitterAPI", dummyReturnTrue)
     def __init__(self, *args, **kwargs):
         TestCase.__init__(self,*args,**kwargs)
         self.client = Client()
 
-    def test_Case1_01_learningView(self):
-        response = self.client.get('/learn/learning/')
+    @mock.patch('feivs2019AccountManager.models.UsersManager.myapiUserTimeline', dummyReturnTweets)
+    def test_Case1_01_learningView_follow_relearn(self):
+        response = self.client.get('/learn/learning/?user=follow&relearn=True')
         self.assertEqual(response.status_code, 200)
+
+    @mock.patch('feivs2019AccountManager.models.UsersManager.myapiUserTimeline', dummyReturnTweets)
+    def test_Case1_02_learningView_follow_norelearn(self):
+        response = self.client.get('/learn/learning/?user=follow&relearn=False')
+        self.assertEqual(response.status_code, 200)
+
+    @mock.patch('feivs2019AccountManager.models.UsersManager.myapiUserTimeline', dummyReturnTweets)
+    def test_Case1_03_learningView_friend_relearn(self):
+        response = self.client.get('/learn/learning/?user=friend&relearn=True')
+        self.assertEqual(response.status_code, 200)
+
+    @mock.patch('feivs2019AccountManager.models.UsersManager.myapiUserTimeline', dummyReturnTweets)
+    def test_Case1_04_learningView_friend_norelearn(self):
+        response = self.client.get('/learn/learning/?user=friend&relearn=False')
+        self.assertEqual(response.status_code, 200)
+
+

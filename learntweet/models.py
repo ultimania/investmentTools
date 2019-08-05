@@ -1,13 +1,19 @@
 from django.db import models
 from feivs2019AccountManager.models import *
+from .utils import stems
 import pandas as pd
 import MeCab
 import copy
-from gensim import corpora, models
-from utils import stems
+import gensim
 import pickle
+from sklearn.metrics.pairwise import cosine_similarity
 
 # Create your models here.
+class UserAnalistics(models.Model):
+    screen_name                 = models.CharField(max_length=128, null=True)
+    name                        = models.CharField(max_length=128, null=True)
+    similarity                  = models.FloatField(null=True)
+
 class LearnManager(models.Manager):
     '''----------------------------------------
     getLDA: LDAの分類機を作成（学習させる）
@@ -62,7 +68,7 @@ class LearnManager(models.Manager):
         なし
     ----------------------------------------'''
     def getDocs(self):
-        mecab = MeCab.Tagger ("-Owakati")
+        mecab = MeCab.Tagger("-Owakati")
         # ツイートを分かち書き
         strings = [mecab.parse(tweet.text) for tweet in copy.deepcopy(self.my_timelines)]
         return [stems(row) for row in strings]
@@ -80,16 +86,54 @@ class LearnManager(models.Manager):
         self.my_timelines = my_tweets_manager.myapiUserTimeline(id='feivs2019',count=100)
         docs = self.getDocs()
         # 辞書を作成
-        dictionary = self.createDictionary(docs)
+        self.dictionary = self.createDictionary(docs)
         # コーパスを作成
-        corpus = self.createCorpus(dictionary, docs)
+        corpus = self.createCorpus(self.dictionary, docs)
         # TFIDFを取得
         tfidf = gensim.models.TfidfModel(corpus)
         corpus_tfidf = tfidf[corpus]
         with open('saves/mytweets.dump', mode='wb') as f:
             pickle.dump(corpus_tfidf, f)
         # LDAの分類機を作成（学習させる）
-        self.lda = self.getLDA(corpus_tfidf, dictionary)
+        self.lda = self.getLDA(corpus_tfidf, self.dictionary)
+
+    '''----------------------------------------
+    calc_vecs: アカウントリストから各アカウント名とLDA計算値のセットリストを返す
+        [ パラメータ ]
+            ・mode(boolean): アカウント取得モード
+                True: フォロワー情報の取得
+                False: フォロー情報の取得 
+        [ 返り値 ]
+        なし
+    ----------------------------------------'''
+    def calc_vecs(self, mode):
+        result_screen_names = []
+        result_names = []
+        result_vecs = []
+        my_tweets_manager = MyTweetsManager()
+        my_timeline_text = ''.join([tweet.text for tweet in copy.deepcopy(self.my_timelines)])
+        myvec = self.dictionary.doc2bow(stems(my_timeline_text))
+
+        if mode:
+            users = Users.objects.all().filter(follower_flg=1).values('user_id', 'screen_name', 'name')
+        else:
+            users = Users.objects.all().filter(follow_flg=1).values('user_id', 'screen_name', 'name')
+
+        # アカウントごとに分析していく
+        for user in users:
+            # 対象アカウントのタイムラインのテキストを取得して連結
+            target_timeline = my_tweets_manager.myapiUserTimeline(id=user['user_id'],count=10)
+            timeline_text = ''.join([tweet.text for tweet in target_timeline])
+            # LDAトピック計算
+            vecs = self.dictionary.doc2bow(stems(timeline_text))
+            similarity = sum(cosine_similarity(self.lda[myvec], self.lda[vecs])[0])
+
+            result_vecs.append(similarity)
+            result_screen_names.append(user['screen_name'])
+            result_names.append(user['name'])
+        
+        return (result_screen_names, result_names, result_vecs)
+
 
     '''----------------------------------------
     analysTweets: 特定のアカウントのツイートを潜在意味解析して類似度を出す
@@ -103,14 +147,18 @@ class LearnManager(models.Manager):
         なし
     ----------------------------------------'''
     def analysTweets(self, mode, MIN_SIMILARITY, RELATE_STORE_NUM):
-        # 対象のタイムラインリストを取得
-        target_timelines = MyTweetsManager.getTimelines(mode)
-        # 自分のタイムラインのLDA計算
-        (myname, mypref, myvec) = self.calc_vecs(self.my_timelines, self.lda, dictionary)
-        # 取得したタイムラインのLDA計算
-        (names, prefs, vecs) = self.calc_vecs(target_timelines, self.lda, dictionary)
-        # 類似度を計算
-        similarities = self.cosine_similarity(myvec, vecs)
-        # 結果を表示
-        self.printResult()
+        # import pdb;pdb.set_trace()
+        (screen_names, names, similarities) = self.calc_vecs(mode)
+
+        df = pd.DataFrame({
+            'screen_name'  : screen_names
+            , 'name'       : names
+            , 'similarity' : similarities
+        })
+        for user in df.itertuples():
+            if UserAnalistics.objects.filter(screen_name=user.screen_name).update(screen_name=user.screen_name, name=user.name, similarity=user.similarity) == 0:
+                UserAnalistics.objects.filter(screen_name=user.screen_name).create(screen_name=user.screen_name, name=user.name, similarity=user.similarity)
+
+        # relate_store_list = df[df.similarity > MIN_SIMILARITY].sort_values(by="similarity", ascending=False).head(RELATE_STORE_NUM)
+        # print(relate_store_list)
 

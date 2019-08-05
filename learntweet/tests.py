@@ -79,15 +79,7 @@ def dummyReturnUser(self, user_id=1, id=0, count=0):
     テストケースクラス
 --------------------------'''
 class TestLearnManager(TestCase):
-
-'''
-    @mock.patch('feivs2019AccountManager.models.UsersManager.myapiCreateFavorite', mock.MagicMock(side_effect=tweepy.error.TweepError('dummy')))
-    @mock.patch('feivs2019AccountManager.models.UsersManager.myapiUserTimeline', dummyReturnTweets)
-    @mock.patch('feivs2019AccountManager.models.UsersManager.getUserIDList', dummyReturnList1)
-    def test_Case1_11_refavorite_Error(self):
-        mode = 'ohayousentai'
-        self.assertRaises(Exception, self.usersmanager.refavorite(mode=mode))
-'''
+    pass
 
 '''--------------------------
     テストケースクラス

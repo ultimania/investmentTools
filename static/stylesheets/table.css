@@ -47,13 +47,13 @@ table tr:last-child td:last-child {
   border-radius: 0 0 5px 0;
 }
 
-nav.pagination {
-  overflow:hidden;
+.pagenater {
+  text-align: center;
 }
-nav ul.pagination {
-  position:relative;
-  left: 45%;
-  float:left;
+
+nav.pagination {
+  display: inline-block;
+  text-align: left;
 }
 nav ul li {
   float:left;

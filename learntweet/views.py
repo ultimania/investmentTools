@@ -1,7 +1,9 @@
+from feivs2019AccountManager.models import *
 from django.shortcuts import render
 from django.views import generic
 from .models import LearnManager, UserAnalistics
 import pandas as pd
+
 
 class MyListView(generic.ListView):
     model = UserAnalistics
@@ -14,18 +16,18 @@ class MyListView(generic.ListView):
         return queryset
 
 class DisplayView(generic.ListView):
-    model = UserAnalistics
+    # model = Users
     context_object_name = 'context'
     template_name = 'learntweet/analistics_detail.html'
 
     def get_queryset(self):
-        queryset = UserAnalistics.objects.filter(screen_name=self.kwargs.get('pk')).get()
+        queryset = Users.objects.filter(screen_name=self.kwargs.get('pk')).get()
         return queryset
 
     def get_context_data(self, **kwargs):
         model_manager = LearnManager()
         # import pdb;pdb.set_trace()        
-        kwargs['df'] = model_manager.displayAnalistics(self.kwargs.get('pk')).values.tolist()
+        kwargs['df'] = model_manager.displayAnalistics(id=self.kwargs.get('pk'),MIN_SIMILARITY=5 ).values.tolist()
         return super().get_context_data(**kwargs)
 
 

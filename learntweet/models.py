@@ -22,8 +22,6 @@ class UserAnalistics(models.Model):
 
 class LearnManager(models.Manager):
 
-
-
     '''----------------------------------------
     displayAnalistics: 分析結果を生成する
         [ パラメータ ]
@@ -31,7 +29,7 @@ class LearnManager(models.Manager):
         [ 返り値 ]
         なし
     ----------------------------------------'''
-    def displayAnalistics(self, id):
+    def displayAnalistics(self, id, MIN_SIMILARITY):
         save_path = 'static/images/vecs_hist.png'
 
         # 分析データを取得する
@@ -48,10 +46,14 @@ class LearnManager(models.Manager):
         dictionary = self.createDictionary(None)
         dict_tokens = [ dictionary[int(index)] for index in df['dict_index'].values.tolist() ]
         # df['token']= dict_tokens
-        df['dict_index'] = df['dict_index'].astype(int)
+        # df['dict_index'] = df['dict_index'].astype(int)
+        df['dict_index'] = dict_tokens
         df['freq'] = df['freq'].astype(float)
+        # 閾値以上のデータに絞ってソートする
+        result_df = df[df.freq > MIN_SIMILARITY] \
+                      .sort_values(by="freq", ascending=False)
 
-        return df
+        return result_df
 
 
     '''----------------------------------------
@@ -118,7 +120,7 @@ class LearnManager(models.Manager):
     '''----------------------------------------
     createDictionary: 単語群からLDA用の辞書を作成する
         [ パラメータ ]
-            ・docs: 単語一覧のリスト
+            ・docs(string[]): 単語一覧のリスト
         [ 返り値 ]
         なし
     ----------------------------------------'''
@@ -147,6 +149,28 @@ class LearnManager(models.Manager):
 
 
     '''----------------------------------------
+    excludeWord: 特定の単語を除外する
+        [ パラメータ ]
+        ・docs(string[]): 単語一覧のリスト
+        [ 返り値 ]
+        なし
+    ----------------------------------------'''
+    def excludeWord(self, docs):
+        # 除外語句一覧を読み込む
+        file_path = 'saves/mytweets.exclude'
+        result_docs = []
+        with open(file_path, mode='r', encoding="utf-8") as f:
+            exclude_words = f.readlines()
+        exclude_words = [ word.rstrip('\n') for word in exclude_words ]
+        for doc in docs:
+            result_words = []
+            for word in doc:
+                if not word in exclude_words:
+                    result_words.append(word)
+            result_docs.append(result_words)
+        return result_docs
+
+    '''----------------------------------------
     createLDA: 自分のツイートからLDA分類機を作成する
         [ パラメータ ]
         なし
@@ -165,6 +189,9 @@ class LearnManager(models.Manager):
         if self.relearn_mode:
             # 自分のタイムラインを取得して単語解析
             docs = self.getDocs(topics)
+        # 特定の単語を除外
+        import pdb;pdb.set_trace()
+        docs = self.excludeWord(docs)
         # 辞書を作成
         self.dictionary = self.createDictionary(docs)
         # コーパスを作成

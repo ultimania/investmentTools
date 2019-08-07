@@ -1,6 +1,25 @@
 import MeCab
 import os
 
+'''----------------------------------------
+strings2list: 文字列をリストに変換する
+    [ パラメータ ]
+    ・list_strings(string): リスト文字列
+    [ 返り値 ]
+    ・list_result(string[]): 変換後のリストオブジェクト
+----------------------------------------'''
+def strings2list(list_strings):
+    list_result = []
+    # 両端をトリム
+    list_strings = list_strings.strip("[""]")
+    # 区切り文字で分割する
+    tmp_result = list_strings.replace("),",") ,").split(" , ")
+    # 各要素をリスト化して二次元配列化する
+    for tmp_value in tmp_result:
+        list_result.append(tmp_value.strip("("")").split(", "))
+    return list_result
+
+
 def _split_to_words(text, to_stem=False):
     """
     入力: 'すべて自分のほうへ'
